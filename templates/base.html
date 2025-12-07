@@ -134,13 +134,14 @@
 <body>
     <nav>
         <div class="nav-container">
-            <a href="{% url 'artinerary:index' %}" class="logo">Artinerary</a>
+            <a href="{% if user.is_authenticated %}{% url 'dashboard' %}{% else %}{% url 'landing_page' %}{% endif %}"
+                class="logo">Artinerary</a>
             <div class="nav-links">
                 {% block nav_links %}
                 <a href="{% url 'loc_detail:index' %}">Artworks</a>
                 <a href="{% url 'artinerary:index' %}">Map</a>
-                <a href="{% url 'loc_detail:index' %}">Artworks</a>
                 {% if user.is_authenticated %}
+                <a href="{% url 'dashboard' %}">Dashboard</a>
                 <a href="{% url 'favorites:index' %}">My Favorites</a>
                 <a href="{% url 'itineraries:list' %}">My Itineraries</a>
                 <a href="{% url 'events:public' %}">Events</a>

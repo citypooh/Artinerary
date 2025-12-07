@@ -22,6 +22,7 @@ from artinerary import views as artinerary_views
 
 urlpatterns = [
     path("", artinerary_views.landing_page, name="landing_page"),
+    path("dashboard/", artinerary_views.dashboard, name="dashboard"),
     path("accounts/", include("accounts.urls")),
     path("accounts/", include("allauth.urls")),  # Add allauth URLs
     path("artinerary/", include("artinerary.urls")),
