@@ -227,9 +227,17 @@
                     </form>
                     {% endif %}
                     
-                    {% if event.joined %}
-                    <button class="btn btn-outline-primary flex-grow-1" disabled>Joined</button>
+                    {% if event.host == request.user %}
+                    <!-- Host cannot join/leave their own event -->
+                    <button class="btn btn-outline-primary flex-grow-1" disabled>You're the Host</button>
+                    {% elif event.joined %}
+                    <!-- User has joined - show Leave button -->
+                    <form method="post" action="{% url 'events:leave' event.slug %}" style="display:inline; flex: 1;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger" style="width: 100%;">Leave Event</button>
+                    </form>
                     {% else %}
+                    <!-- User hasn't joined - show Join button -->
                     <form method="post" action="{% url 'events:join' event.slug %}" style="display:inline; flex: 1;">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-outline-primary" style="width: 100%;">Join Event</button>
