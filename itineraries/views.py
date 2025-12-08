@@ -535,7 +535,7 @@ def create_event_from_itinerary(request, pk):
                 messages.error(request, str(e))
             except Exception as e:
                 messages.error(request, f"An error occurred: {str(e)}")
-        
+
         # If form is invalid, we still need to set these for template rendering
         first_stop = itinerary.stops.first()
         first_location = first_stop.location if first_stop else None
@@ -544,9 +544,7 @@ def create_event_from_itinerary(request, pk):
         # Pre-populate form with itinerary data
         initial_data = {
             "title": itinerary.title,
-            "description": (
-                itinerary.description if itinerary.description else ""
-            ),
+            "description": (itinerary.description if itinerary.description else ""),
             "visibility": "PUBLIC_OPEN",  # Default to public
         }
 
@@ -554,23 +552,25 @@ def create_event_from_itinerary(request, pk):
         first_stop = itinerary.stops.first()
         first_location = first_stop.location if first_stop else None
         first_location_id = first_location.id if first_location else None
-        
+
         if first_stop and first_stop.location:
             # Verify the location has valid coordinates
             if first_stop.location.latitude and first_stop.location.longitude:
                 # Set the location ID for the form initial value
                 initial_data["start_location"] = first_location_id
-            
+
             # If itinerary has a date, convert it to datetime
             if itinerary.date:
                 # Use visit_time from first stop if available, otherwise noon
-                visit_time = first_stop.visit_time if first_stop.visit_time else time(12, 0)
+                visit_time = (
+                    first_stop.visit_time if first_stop.visit_time else time(12, 0)
+                )
                 dt = datetime.combine(itinerary.date, visit_time)
                 # Make it timezone-aware
                 initial_data["start_time"] = django_timezone.make_aware(dt)
 
         form = EventForm(initial=initial_data)
-        
+
         # Explicitly set the field value after form instantiation
         if first_location_id:
             form.fields["start_location"].initial = first_location_id
@@ -579,20 +579,28 @@ def create_event_from_itinerary(request, pk):
     all_locations = PublicArt.objects.filter(
         latitude__isnull=False, longitude__isnull=False
     ).order_by("title")
-    
+
     # Ensure first_location is in the available locations
-    # If the first stop's location doesn't have coordinates, find the first one that does
+    # If the first stop's location doesn't have coordinates,
+    # find the first one that does
     if first_location and first_location_id:
         if not all_locations.filter(id=first_location_id).exists():
-            # First location doesn't have coordinates, find first stop that does
-            print(f"DEBUG: First location ID {first_location_id} ({first_location.title}) doesn't have valid coordinates")
+            # First location doesn't have coordinates,
+            # find first stop that does
+            print(
+                f"DEBUG: First location ID {first_location_id} "
+                f"({first_location.title}) doesn't have valid coordinates"
+            )
             first_location = None
             first_location_id = None
             for stop in itinerary.stops.all():
                 if stop.location.latitude and stop.location.longitude:
                     first_location = stop.location
                     first_location_id = stop.location.id
-                    print(f"DEBUG: Using alternative first location: {first_location.title} (ID: {first_location_id})")
+                    print(
+                        f"DEBUG: Using alternative first location: "
+                        f"{first_location.title} (ID: {first_location_id})"
+                    )
                     break
 
     # Get locations from itinerary (excluding the first one as it's the start)
@@ -611,7 +619,7 @@ def create_event_from_itinerary(request, pk):
         "first_location_id": first_location_id,
         "from_itinerary": True,
     }
-    
+
     # DEBUG: Print what we're passing
     print(f"DEBUG: first_location = {first_location}")
     print(f"DEBUG: first_location_id = {first_location_id}")
