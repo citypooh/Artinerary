@@ -54,6 +54,11 @@
                     </button>
                 </form>
                 {% endif %}
+                {% if itinerary.stops.all %}
+                <a href="{% url 'itineraries:create_event' itinerary.pk %}" class="btn btn-success" title="Create an event from this itinerary">
+                    <i class="fas fa-calendar-plus me-1"></i>Create Event
+                </a>
+                {% endif %}
                 <a href="{% url 'itineraries:edit' itinerary.pk %}" class="btn btn-outline-primary">
                     <i class="fas fa-edit me-1"></i>Edit
                 </a>
