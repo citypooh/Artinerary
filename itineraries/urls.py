@@ -22,6 +22,11 @@ urlpatterns = [
     path("<int:pk>/favorite/", views.favorite_itinerary, name="favorite"),
     path("<int:pk>/unfavorite/", views.unfavorite_itinerary, name="unfavorite"),
     path(
+        "<int:pk>/create-event/",
+        views.create_event_from_itinerary,
+        name="create_event",
+    ),
+    path(
         "api/search-locations/", views.api_search_locations, name="api_search_locations"
     ),
     path(
