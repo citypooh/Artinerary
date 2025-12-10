@@ -145,11 +145,8 @@
                     <div class="rating-score">
                         <div class="rating-number">{{ avg_rating }}</div>
                         <div class="rating-stars">
-                            {% with avg_rating|floatformat:0 as rating_int %}
-                            {% for i in "12345" %}
-                                {% if forloop.counter <= rating_int|add:0 %}★{% else %}☆{% endif %}
-                            {% endfor %}
-                            {% endwith %}
+                            {% load rating_filters %}
+                            {{ avg_rating|star_display }}
                         </div>
                         <div class="rating-count">{{ total_reviews }} review{{ total_reviews|pluralize }}</div>
                     </div>

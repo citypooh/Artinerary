@@ -183,4 +183,4 @@ def logout_view(request):
 
     logout(request)
     messages.success(request, "You have been logged out successfully.")
-    return redirect("accounts:login")
+    return redirect("landing_page")

@@ -600,7 +600,10 @@ class RatingDisplayTests(TestCase):
         response = self.client.get(reverse("loc_detail:index"))
 
         # Check that ratings are shown
-        self.assertContains(response, "★")  # Star character
+        self.assertContains(
+            response,
+            '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="m233-120 65-281L80-590l288-25 112-265 112 265 288 25-218 189 65 281-247-149-247 149Z"/></svg>',  # noqa: E501
+        )  # Star character
         self.assertContains(response, "5.0")  # High rating
         self.assertContains(response, "3.0")  # Low rating
 

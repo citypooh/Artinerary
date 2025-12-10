@@ -1,7 +1,7 @@
 {% if has_any_favorites %}
     <!-- Search and Filter Controls -->
     <div class="filters-section">
-        <form method="get" class="filters-form">
+        <form method="get" class="search-filter-form">
             <input type="hidden" name="tab" value="art">
             <div class="form-group">
                 <input type="text" 
@@ -80,9 +80,8 @@
                         {% if favorite.art.get_total_reviews > 0 %}
                         <div class="art-rating">
                             <span class="art-rating-stars">
-                                {% for i in "12345" %}
-                                    {% if forloop.counter <= favorite.art.get_average_rating %}★{% else %}☆{% endif %}
-                                {% endfor %}
+                                {% load rating_filters %}
+                                {{ favorite.art.get_average_rating|star_display }}
                             </span>
                             <span class="art-rating-score">{{ favorite.art.get_average_rating }}</span>
                             <span class="art-rating-count">({{ favorite.art.get_total_reviews }})</span>

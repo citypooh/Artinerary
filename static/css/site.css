@@ -616,6 +616,7 @@ select.form-control:focus {
 
 .art-rating-stars {
     color: #fbbc04;
+    fill: #fbbc04;
     font-size: 16px;
 }
 

@@ -1,0 +1,335 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Artinerary{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    .dashboard-container {
+        padding: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .dashboard-header {
+        margin-bottom: 2rem;
+        color: #fff;
+    }
+
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+    }
+
+    .dashboard-card {
+        background: #222;
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid #333;
+        transition: transform 0.2s, box-shadow 0.2s;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        border-color: #444;
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid #333;
+        padding-bottom: 1rem;
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #fff;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .card-title i {
+        color: #667eea;
+    }
+
+    .card-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    /* List Items */
+    .list-item {
+        background: #2a2a2a;
+        padding: 1rem;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        text-decoration: none;
+        color: #ddd;
+        transition: background 0.2s;
+    }
+
+    .list-item:hover {
+        background: #333;
+        color: #fff;
+    }
+
+    .item-icon {
+        width: 40px;
+        height: 40px;
+        background: rgba(102, 126, 234, 0.1);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #667eea;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+
+    .item-details {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .item-title {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .item-subtitle {
+        font-size: 0.85rem;
+        color: #888;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 2rem 0;
+        color: #888;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.3;
+    }
+
+    .btn-action {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.5rem 1.5rem;
+        border-radius: 20px;
+        text-decoration: none;
+        font-weight: 600;
+        margin-top: 1rem;
+        display: inline-block;
+        transition: transform 0.2s;
+    }
+
+    .btn-action:hover {
+        transform: scale(1.05);
+        color: white;
+    }
+
+    /* Map Section */
+    #mini-map {
+        height: 300px;
+        width: 100%;
+        border-radius: 8px;
+        z-index: 1;
+    }
+
+    .view-all {
+        font-size: 0.9rem;
+        color: #667eea;
+        text-decoration: none;
+    }
+
+    .view-all:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Welcome back, {{ user.username }}!</h1>
+        <p class="text-muted">Here's what's happening in your art world.</p>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- Events Section -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-calendar-alt"></i> My Events
+                </h2>
+                {% if upcoming_events %}
+                <a href="{% url 'events:index' %}" class="view-all">View All</a>
+                {% endif %}
+            </div>
+            <div class="card-content">
+                {% if upcoming_events %}
+                {% for membership in upcoming_events %}
+                <a href="{% url 'events:detail' slug=membership.event.slug %}" class="list-item">
+                    <div class="item-icon">
+                        <i class="fas fa-ticket-alt"></i>
+                    </div>
+                    <div class="item-details">
+                        <div class="item-title">{{ membership.event.title }}</div>
+                        <div class="item-subtitle">
+                            {{ membership.event.start_time|date:"M d, H:i" }} • {{ membership.role|title }}
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-calendar-times"></i>
+                    <p>No upcoming events.</p>
+                    <a href="{% url 'events:index' %}" class="btn-action">Explore Events</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Itineraries Section -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-route"></i> My Itineraries
+                </h2>
+                {% if my_itineraries %}
+                <a href="{% url 'itineraries:list' %}" class="view-all">View All</a>
+                {% endif %}
+            </div>
+            <div class="card-content">
+                {% if my_itineraries %}
+                {% for itinerary in my_itineraries %}
+                <a href="{% url 'itineraries:detail' pk=itinerary.pk %}" class="list-item">
+                    <div class="item-icon">
+                        <i class="fas fa-map-signs"></i>
+                    </div>
+                    <div class="item-details">
+                        <div class="item-title">{{ itinerary.title }}</div>
+                        <div class="item-subtitle">
+                            {{ itinerary.stops.count }} stops • Updated {{ itinerary.updated_at|timesince }} ago
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-map"></i>
+                    <p>You haven't created any itineraries yet.</p>
+                    <a href="{% url 'itineraries:create' %}" class="btn-action">Create Itinerary</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Map Section -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-map-marked-alt"></i> Map Overview
+                </h2>
+                <a href="{% url 'artinerary:index' %}" class="view-all">Full Map</a>
+            </div>
+            <div class="card-content">
+                <div id="mini-map"></div>
+            </div>
+        </div>
+
+        <!-- Chats Section -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-comments"></i> Recent Chats
+                </h2>
+                {% if recent_chats %}
+                <a href="{% url 'user_messages:inbox' %}" class="view-all">View All</a>
+                {% endif %}
+            </div>
+            <div class="card-content">
+                {% if recent_chats %}
+                {% for chat in recent_chats %}
+                <a href="{% url 'user_messages:conversation' user_id=chat.user2.id %}" class="list-item">
+                    <div class="item-icon">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="item-details">
+                        <div class="item-title">
+                            {% if chat.user1 == user %}
+                            {{ chat.user2.username }}
+                            {% else %}
+                            {{ chat.user1.username }}
+                            {% endif %}
+                        </div>
+                        <div class="item-subtitle">
+                            Active {{ chat.updated_at|timesince }} ago
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-comment-slash"></i>
+                    <p>No recent conversations.</p>
+                    <a href="{% url 'user_messages:inbox' %}" class="btn-action">Start Chatting</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Initialize mini map
+        var map = L.map('mini-map', {
+            zoomControl: false,
+            attributionControl: false
+        }).setView([40.7128, -74.0060], 13); // Default to NYC
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            maxZoom: 19
+        }).addTo(map);
+
+        // Try to get user location
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                map.setView([position.coords.latitude, position.coords.longitude], 13);
+                L.marker([position.coords.latitude, position.coords.longitude]).addTo(map);
+            });
+        }
+    });
+</script>
+{% endblock %}

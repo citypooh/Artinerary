@@ -1,0 +1,425 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Event from Itinerary - Artinerary{% endblock %}
+
+{% block extra_head %}
+<style>
+    .form-wrapper {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .form-container {
+        max-width: 900px;
+        width: 100%;
+        padding: 3rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .form-container h1 {
+        margin: 0 0 1.25rem 0;
+        font-size: 2.25rem;
+        letter-spacing: 1px;
+    }
+    .itinerary-info-box {
+        background: rgba(102, 126, 234, 0.15);
+        border: 1px solid rgba(102, 126, 234, 0.4);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .itinerary-info-box h5 {
+        color: #4a5fc1;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+    }
+    .itinerary-info-box p {
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+        color: #2c3e50;
+    }
+    .itinerary-info-box strong {
+        color: #1a252f;
+    }
+    .create-form-group {
+        margin-bottom: 1.75rem;
+    }
+    .create-form-group label {
+        display: block;
+        margin-bottom: 0.75rem;
+        font-weight: 400;
+        font-size: 0.95rem;
+        color: var(--page-background);
+    }
+    .create-form-group input[type="text"],
+    .create-form-group input[type="datetime-local"],
+    .create-form-group select,
+    .create-form-group textarea {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--dark-gray-background);
+        font-size: 0.95rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-weight: 300;
+    }
+    .create-form-group input::placeholder,
+    .create-form-group textarea::placeholder {
+        color: #666;
+    }
+    .create-form-group input:focus,
+    .create-form-group select:focus,
+    .create-form-group textarea:focus {
+        outline: none;
+        border: 1px solid #ccc;
+        transform: translateY(-1px);
+    }
+    .location-list {
+        background: rgba(17, 153, 142, 0.12);
+        border: 1px solid rgba(17, 153, 142, 0.4);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-top: 0.5rem;
+    }
+    .location-list > strong {
+        color: #1a252f;
+    }
+    .location-item {
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+        background: rgba(255, 255, 255, 0.7);
+        border: 1px solid rgba(17, 153, 142, 0.2);
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .location-item:last-child {
+        margin-bottom: 0;
+    }
+    .location-item strong {
+        color: #1a252f;
+    }
+    .location-item small {
+        color: #5a6c7d !important;
+    }
+    .location-number {
+        background: #11998e;
+        color: #ffffff;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    .location-search-container,
+    .user-search-container {
+        margin-top: 0.75rem;
+    }
+    .location-search-container input,
+    .user-search-container input {
+        width: 100%;
+    }
+    .autocomplete-results {
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-top: none;
+        max-height: 250px;
+        overflow-y: auto;
+        backdrop-filter: blur(20px);
+        display: none;
+        border-radius: 0 0 8px 8px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        margin-top: -8px;
+        color: var(--page-background)
+    }
+    .autocomplete-item {
+        padding: 0.875rem 1rem;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        font-size: 0.9rem;
+    }
+    .autocomplete-item:last-child {
+        border-bottom: none;
+    }
+    .autocomplete-item:hover {
+        transform: translateX(4px);
+    }
+    .chips-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.625rem;
+        margin-top: 0.875rem;
+        min-height: 40px;
+        padding: 0.625rem;
+        border: 1px solid #ccc;
+        background-color: #eee;
+    }
+    .chip {
+        background: rgba(102, 126, 234, 0.15);
+        color: #8b9cff;
+        padding: 0.4rem 0.875rem;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 400;
+        border: 1px solid rgba(102, 126, 234, 0.3);
+        animation: chipIn 0.3s ease-out;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        font-size: 0.875rem;
+        letter-spacing: 0.3px;
+    }
+    @keyframes chipIn {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    .chip:hover {
+        background: rgba(102, 126, 234, 0.25);
+        border-color: rgba(102, 126, 234, 0.5);
+    }
+    .chip-remove {
+        cursor: pointer;
+        padding: 0 0.25rem;
+        border-radius: 50%;
+        transition: all 0.2s ease;
+        opacity: 0.7;
+    }
+    .chip-remove:hover {
+        background: rgba(255, 255, 255, 0.1);
+        opacity: 1;
+    }
+    .form-actions {
+        margin-top: 2.5rem;
+        display: flex;
+        gap: 0.875rem;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        justify-content: space-between;
+    }
+    .error {
+        color: #ff6b7a;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        background: rgba(235, 51, 73, 0.15);
+        border-radius: 6px;
+        border-left: 2px solid rgba(235, 51, 73, 0.5);
+        font-weight: 300;
+    }
+    .helper-text {
+        font-size: 0.85rem;
+        color: #666;
+        margin-top: 0.5rem;
+        font-style: italic;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-wrapper">
+    <div class="form-container">
+        <h1>Create Event from Itinerary</h1>
+        
+        <!-- Itinerary Information Box -->
+        <div class="itinerary-info-box">
+            <h5><i class="fas fa-route me-2"></i>Creating event from: {{ itinerary.title }}</h5>
+            {% if itinerary.description %}
+            <p><strong>Description:</strong> {{ itinerary.description }}</p>
+            {% endif %}
+            <p><strong>Locations:</strong> {{ itinerary.stops.count }} stop{{ itinerary.stops.count|pluralize }}</p>
+            {% if itinerary.date %}
+            <p><strong>Planned Date:</strong> {{ itinerary.date|date:"F d, Y" }}</p>
+            {% endif %}
+            
+            <div class="location-list mt-3">
+                <strong class="d-block mb-2">Route from Itinerary:</strong>
+                {% for stop in itinerary.stops.all %}
+                <div class="location-item">
+                    <div class="location-number">{{ forloop.counter }}</div>
+                    <div>
+                        <strong>{{ stop.location.title|default:"Untitled" }}</strong>
+                        {% if stop.location.artist_name %}
+                        <br><small class="text-muted">{{ stop.location.artist_name }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <form method="post" id="create-event-form">
+        {% csrf_token %}
+        
+        <!-- Title -->
+        <div class="create-form-group">
+            <label for="{{ form.title.id_for_label }}">Event Title *</label>
+            {{ form.title }}
+            <div class="helper-text">Pre-filled from itinerary. You can change it if needed.</div>
+            {% if form.title.errors %}
+                <div class="error">{{ form.title.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <!-- Date & Time -->
+        <div class="create-form-group">
+            <label for="{{ form.start_time.id_for_label }}">Date & Time *</label>
+            {{ form.start_time }}
+            {% if itinerary.date %}
+            <div class="helper-text">Pre-filled from itinerary date (set to noon). Please adjust the time as needed.</div>
+            {% else %}
+            <div class="helper-text">Please select when this event will take place.</div>
+            {% endif %}
+            {% if form.start_time.errors %}
+                <div class="error">{{ form.start_time.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <!-- Starting Location -->
+        <div class="create-form-group">
+            <label for="{{ form.start_location.id_for_label }}">Starting Location *</label>
+            <select name="start_location" id="id_start_location" class="create-form-select" required>
+                <option value="">Select a location...</option>
+                {% for location in locations %}
+                    <option value="{{ location.id }}" {% if first_location and location.id == first_location.id %}selected{% endif %}>
+                        {{ location.title }}
+                    </option>
+                {% endfor %}
+            </select>
+            <div class="helper-text">Pre-filled with the first stop from your itinerary: <strong>{{ first_location.title }}</strong></div>
+            {% if form.start_location.errors %}
+                <div class="error">{{ form.start_location.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <!-- Description -->
+        <div class="create-form-group">
+            <label for="{{ form.description.id_for_label }}">Description</label>
+            {{ form.description }}
+            <div class="helper-text">Pre-filled from itinerary. Add or modify event details as needed.</div>
+            {% if form.description.errors %}
+                <div class="error">{{ form.description.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <!-- Additional Locations (pre-populated from itinerary) -->
+        <div class="create-form-group">
+            <label>Additional Locations</label>
+            <div class="helper-text mb-2">The following locations from your itinerary will be added as event stops:</div>
+            <div id="locations-chips" class="chips-container"></div>
+        </div>
+        
+        <!-- Invite Members -->
+        <div class="create-form-group">
+            <label>Invite Members (optional)</label>
+            <div class="user-search-container">
+                <input type="text" id="user-search" placeholder="Search for users to invite...">
+                <div id="user-results" class="autocomplete-results"></div>
+            </div>
+            <div id="invites-chips" class="chips-container"></div>
+        </div>
+        
+        <!-- Visibility -->
+        <div class="create-form-group">
+            <label for="{{ form.visibility.id_for_label }}">Visibility *</label>
+            {{ form.visibility }}
+            <div class="helper-text">Default set to Public - Open to All. You can change this or edit the event later.</div>
+            {% if form.visibility.errors %}
+                <div class="error">{{ form.visibility.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-actions">
+            <a href="{% url 'itineraries:detail' itinerary.pk %}" class="btn btn-outline-danger">Cancel</a>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-calendar-plus me-1"></i>Create Event
+            </button>
+        </div>
+    </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'events/create.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Ensure the starting location is properly selected
+    {% if first_location_id %}
+    const locationId = '{{ first_location_id }}';
+    const startLocationSelect = document.getElementById('id_start_location');
+    
+    if (startLocationSelect) {
+        console.log('Attempting to set start location to ID:', locationId);
+        
+        // Set the value
+        startLocationSelect.value = locationId;
+        
+        // Verify it was set
+        if (startLocationSelect.value === locationId) {
+            console.log('Successfully set start location to:', '{{ first_location.title }}');
+        } else {
+            console.error('Failed to set start location. Current value:', startLocationSelect.value);
+            console.error('Available options:', Array.from(startLocationSelect.options).map(o => o.value));
+        }
+        
+        // Trigger change event
+        startLocationSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        
+        // Mark as required field satisfied
+        startLocationSelect.setCustomValidity('');
+    } else {
+        console.error('Could not find start location select element with id "id_start_location"');
+    }
+    {% else %}
+    console.warn('No first_location_id provided to pre-select');
+    {% endif %}
+    
+    // Pre-populate locations from itinerary (excluding the first one which is the start location)
+    const itineraryLocations = {{ itinerary_locations|safe }};
+    
+    // Get the locations container
+    const locationsChips = document.getElementById('locations-chips');
+    
+    // Initialize selected locations array
+    if (!window.selectedLocations) {
+        window.selectedLocations = [];
+    }
+    
+    // Add each itinerary location as a chip
+    itineraryLocations.forEach(function(location) {
+        if (!window.selectedLocations.includes(location.id)) {
+            window.selectedLocations.push(location.id);
+            
+            const chip = document.createElement('div');
+            chip.className = 'chip';
+            chip.dataset.id = location.id;
+            chip.innerHTML = `
+                <span>${location.title}</span>
+                <span class="chip-remove" onclick="removeLocationChip(${location.id})">✕</span>
+            `;
+            locationsChips.appendChild(chip);
+        }
+    });
+});
+
+// Override or extend the removeLocationChip function if needed
+function removeLocationChip(id) {
+    const chip = document.querySelector(`.chip[data-id="${id}"]`);
+    if (chip) {
+        chip.remove();
+        window.selectedLocations = window.selectedLocations.filter(locId => locId !== id);
+    }
+}
+</script>
+{% endblock %}

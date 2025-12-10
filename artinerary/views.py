@@ -1,5 +1,44 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
+from events.models import EventMembership
+from itineraries.models import Itinerary
+from messages.models import Conversation
+
+
+def landing_page(request):
+    """Landing page for unauthenticated users"""
+    if request.user.is_authenticated:
+        return redirect("dashboard")
+    return render(request, "landing.html")
+
+
+@login_required
+def dashboard(request):
+    """User dashboard with overview of events, itineraries, and chats"""
+    user = request.user
+
+    # Get upcoming events (top 3)
+    upcoming_events = (
+        EventMembership.objects.filter(user=user)
+        .select_related("event")
+        .order_by("event__start_time")[:3]
+    )
+
+    # Get recent itineraries (top 3)
+    my_itineraries = Itinerary.objects.filter(user=user).order_by("-updated_at")[:3]
+
+    # Get recent chats (top 3)
+    recent_chats = Conversation.objects.filter(Q(user1=user) | Q(user2=user)).order_by(
+        "-updated_at"
+    )[:3]
+
+    context = {
+        "upcoming_events": upcoming_events,
+        "my_itineraries": my_itineraries,
+        "recent_chats": recent_chats,
+    }
+    return render(request, "dashboard.html", context)
 
 
 @login_required

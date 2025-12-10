@@ -486,3 +486,145 @@ def favorites(request):
     }
 
     return render(request, "itineraries/favorites.html", context)
+
+
+@login_required
+def create_event_from_itinerary(request, pk):
+    """Create an event from an existing itinerary"""
+    from events.forms import EventForm, parse_locations, parse_invites
+    from events.services import create_event
+    from datetime import datetime, time
+    from django.utils import timezone as django_timezone
+
+    itinerary = get_object_or_404(
+        Itinerary.objects.prefetch_related("stops", "stops__location"),
+        pk=pk,
+        user=request.user,
+    )
+
+    # Check if itinerary has any stops
+    if not itinerary.stops.exists():
+        messages.error(
+            request,
+            "Cannot create an event from an empty itinerary. "
+            "Please add locations first.",
+        )
+        return redirect("itineraries:detail", pk=pk)
+
+    if request.method == "POST":
+        form = EventForm(request.POST)
+        if form.is_valid():
+            try:
+                # Get additional locations from the form
+                locations = parse_locations(request)
+                invites = parse_invites(request)
+
+                # Create the event
+                event = create_event(
+                    host=request.user, form=form, locations=locations, invites=invites
+                )
+
+                messages.success(
+                    request,
+                    f'Event "{event.title}" created successfully '
+                    f'from itinerary "{itinerary.title}"!',
+                )
+                return redirect(event.get_absolute_url())
+
+            except ValueError as e:
+                messages.error(request, str(e))
+            except Exception as e:
+                messages.error(request, f"An error occurred: {str(e)}")
+
+        # If form is invalid, we still need to set these for template rendering
+        first_stop = itinerary.stops.first()
+        first_location = first_stop.location if first_stop else None
+        first_location_id = first_location.id if first_location else None
+    else:
+        # Pre-populate form with itinerary data
+        initial_data = {
+            "title": itinerary.title,
+            "description": (itinerary.description if itinerary.description else ""),
+            "visibility": "PUBLIC_OPEN",  # Default to public
+        }
+
+        # Get first stop for location and time
+        first_stop = itinerary.stops.first()
+        first_location = first_stop.location if first_stop else None
+        first_location_id = first_location.id if first_location else None
+
+        if first_stop and first_stop.location:
+            # Verify the location has valid coordinates
+            if first_stop.location.latitude and first_stop.location.longitude:
+                # Set the location ID for the form initial value
+                initial_data["start_location"] = first_location_id
+
+            # If itinerary has a date, convert it to datetime
+            if itinerary.date:
+                # Use visit_time from first stop if available, otherwise noon
+                visit_time = (
+                    first_stop.visit_time if first_stop.visit_time else time(12, 0)
+                )
+                dt = datetime.combine(itinerary.date, visit_time)
+                # Make it timezone-aware
+                initial_data["start_time"] = django_timezone.make_aware(dt)
+
+        form = EventForm(initial=initial_data)
+
+        # Explicitly set the field value after form instantiation
+        if first_location_id:
+            form.fields["start_location"].initial = first_location_id
+
+    # Get all locations for the dropdown (only those with valid coordinates)
+    all_locations = PublicArt.objects.filter(
+        latitude__isnull=False, longitude__isnull=False
+    ).order_by("title")
+
+    # Ensure first_location is in the available locations
+    # If the first stop's location doesn't have coordinates,
+    # find the first one that does
+    if first_location and first_location_id:
+        if not all_locations.filter(id=first_location_id).exists():
+            # First location doesn't have coordinates,
+            # find first stop that does
+            print(
+                f"DEBUG: First location ID {first_location_id} "
+                f"({first_location.title}) doesn't have valid coordinates"
+            )
+            first_location = None
+            first_location_id = None
+            for stop in itinerary.stops.all():
+                if stop.location.latitude and stop.location.longitude:
+                    first_location = stop.location
+                    first_location_id = stop.location.id
+                    print(
+                        f"DEBUG: Using alternative first location: "
+                        f"{first_location.title} (ID: {first_location_id})"
+                    )
+                    break
+
+    # Get locations from itinerary (excluding the first one as it's the start)
+    itinerary_locations = []
+    for stop in itinerary.stops.all()[1:]:  # Skip first stop
+        itinerary_locations.append(
+            {"id": stop.location.id, "title": stop.location.title}
+        )
+
+    context = {
+        "form": form,
+        "locations": all_locations,
+        "itinerary": itinerary,
+        "itinerary_locations": itinerary_locations,
+        "first_location": first_location,
+        "first_location_id": first_location_id,
+        "from_itinerary": True,
+    }
+
+    # DEBUG: Print what we're passing
+    print(f"DEBUG: first_location = {first_location}")
+    print(f"DEBUG: first_location_id = {first_location_id}")
+    if first_location:
+        print(f"DEBUG: first_location.id = {first_location.id}")
+        print(f"DEBUG: first_location.title = {first_location.title}")
+
+    return render(request, "itineraries/create_event_from_itinerary.html", context)

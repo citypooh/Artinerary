@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load rating_filters %}
 
 {% block title %}My Favorites - Artinerary{% endblock %}
 
@@ -108,9 +109,7 @@
                         {% if art.get_total_reviews > 0 %}
                         <div class="art-rating">
                             <span class="art-rating-stars">
-                                {% for i in "12345" %}
-                                    {% if forloop.counter <= art.get_average_rating %}★{% else %}☆{% endif %}
-                                {% endfor %}
+                                {{ art.get_average_rating|star_display }}
                             </span>
                             <span class="art-rating-score">{{ art.get_average_rating }}</span>
                             <span class="art-rating-count">({{ art.get_total_reviews }})</span>
