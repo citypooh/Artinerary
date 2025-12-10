@@ -175,17 +175,20 @@ class ArtineraryAISmartFallbackTests(TestCase):
     def test_fallback_itinerary_query(self):
         """Test fallback for itinerary query"""
         response = self.ai._get_smart_fallback("how to create an itinerary")
-        self.assertIn("itinerary", response.lower())
+        # Check for 'itinerar' to match both 'itinerary' and 'itineraries'
+        self.assertIn("itinerar", response.lower())
 
     def test_fallback_tour_query(self):
         """Test fallback for tour query"""
         response = self.ai._get_smart_fallback("help me plan a tour")
-        self.assertIn("itinerary", response.lower())
+        # Check for 'itinerar' to match both 'itinerary' and 'itineraries'
+        self.assertIn("itinerar", response.lower())
 
     def test_fallback_route_query(self):
         """Test fallback for route query"""
         response = self.ai._get_smart_fallback("show me the route")
-        self.assertIn("itinerary", response.lower())
+        # Check for 'itinerar' to match both 'itinerary' and 'itineraries'
+        self.assertIn("itinerar", response.lower())
 
     def test_fallback_dashboard_query(self):
         """Test fallback for dashboard query"""
