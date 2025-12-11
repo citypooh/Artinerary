@@ -132,7 +132,7 @@
             </div>
 
             <div style="text-align: center;">
-                <a href="{% url 'accounts:login' %}" class="btn"
+                <a href="{% url 'accounts:login' %}" class="btn btn-email"
                     style="display: inline-block; width: 100%; margin-bottom: 0.5rem;">Login with Email</a>
                 <a href="{% url 'accounts:signup' %}"
                     style="color: #667eea; text-decoration: none; font-size: 0.9rem;">Create an Account</a>
@@ -413,6 +413,11 @@
 
     .btn-google:hover {
         background: #f8f8f8;
+        color: #444;
+    }
+
+    .btn-email:hover {
+        color: #444;
     }
 
     .divider {

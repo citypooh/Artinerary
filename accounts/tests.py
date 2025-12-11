@@ -51,7 +51,7 @@ class AuthBackendTests(TestCase):
             {"username": "testuser", "password": "testpass123"},
         )
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, "/artinerary/")
+        self.assertRedirects(response, "/dashboard/")
 
     def test_login_with_email(self):
         response = self.client.post(
@@ -59,7 +59,7 @@ class AuthBackendTests(TestCase):
             {"username": "test@example.com", "password": "testpass123"},
         )
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, "/artinerary/")
+        self.assertRedirects(response, "/dashboard/")
 
     def test_login_with_wrong_password(self):
         response = self.client.post(
@@ -300,7 +300,7 @@ class LogoutViewTests(TestCase):
 
         # Should redirect to login
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse("accounts:login"))
+        self.assertRedirects(response, "/")
 
         # User should not be authenticated
         response = self.client.get(reverse("accounts:login"))
@@ -316,7 +316,7 @@ class LogoutViewTests(TestCase):
 
         # Should redirect to login
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse("accounts:login"))
+        self.assertRedirects(response, "/")
 
 
 class SignupFormValidationTests(TestCase):

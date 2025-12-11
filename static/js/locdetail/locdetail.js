@@ -514,17 +514,17 @@ if (addToItineraryBtn) {
 
 function showAddToItineraryModal(locationId, locationTitle) {
     const modalHTML = '<div id="itinerary-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;">' +
-        '<div style="background: white; padding: 30px; border-radius: 10px; max-width: 500px; width: 90%;">' +
+        '<div style="background: white; padding: 30px; border-radius: 10px; max-width: 500px; width: 90%; color: var(--page-background);">' +
         '<h3 style="margin-top: 0;">Add "' + locationTitle + '" to Itinerary</h3>' +
         '<div style="margin: 20px 0;">' +
-        '<label style="display: block; margin-bottom: 10px; font-weight: bold;">Select an existing itinerary:</label>' +
+        '<label style="display: block; margin-bottom: 10px;">Select an existing itinerary:</label>' +
         '<select id="existing-itinerary" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">' +
         '<option value="">Loading...</option>' +
         '</select>' +
         '</div>' +
         '<div style="text-align: center; margin: 15px 0; color: #666;">OR</div>' +
         '<div style="margin: 20px 0;">' +
-        '<label style="display: block; margin-bottom: 10px; font-weight: bold;">Create a new itinerary:</label>' +
+        '<label style="display: block; margin-bottom: 10px;">Create a new itinerary:</label>' +
         '<input type="text" id="new-itinerary-title" placeholder="Enter itinerary name" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">' +
         '</div>' +
         '<div style="display: flex; gap: 10px;">' +
