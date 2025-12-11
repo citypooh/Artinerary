@@ -1,6 +1,5 @@
 <!-- templates/chatbot/chat_widget.html -->
 <style>
-    /* Chat Toggle Button - White border for black background */
     .chat-toggle-btn {
         position: fixed;
         bottom: 20px;
@@ -19,13 +18,11 @@
         transition: transform 0.3s, box-shadow 0.3s;
         z-index: 10000;
     }
-
     .chat-toggle-btn:hover {
         transform: scale(1.1);
         box-shadow: 0 6px 20px rgba(255, 255, 255, 0.5);
         background: #f5f5f5;
     }
-
     .chat-toggle-badge {
         position: absolute;
         top: -5px;
@@ -42,14 +39,11 @@
         font-weight: bold;
         animation: pulse 2s infinite;
     }
-
     @keyframes pulse {
         0% { transform: scale(1); }
         50% { transform: scale(1.1); }
         100% { transform: scale(1); }
     }
-
-    /* Chat Window - Clean white design with thin border */
     .chat-window {
         position: fixed;
         bottom: 90px;
@@ -70,23 +64,11 @@
         animation: slideUp 0.3s ease-out;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     }
-
-    .chat-window.open {
-        display: flex;
-    }
-
+    .chat-window.open { display: flex; }
     @keyframes slideUp {
-        from { 
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to { 
-            opacity: 1;
-            transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
     }
-
-    /* Resize handle container */
     .chat-resize-handle {
         position: absolute;
         bottom: 0;
@@ -96,7 +78,6 @@
         cursor: nwse-resize;
         z-index: 10;
     }
-
     .chat-resize-handle::after {
         content: '';
         position: absolute;
@@ -106,8 +87,6 @@
         height: 12px;
         background: linear-gradient(135deg, transparent 50%, #666 50%);
     }
-
-    /* Chat Header - Black header with white text */
     .chat-header {
         background: black;
         color: white;
@@ -120,13 +99,11 @@
         flex-shrink: 0;
         cursor: move;
     }
-
     .chat-header-info {
         display: flex;
         align-items: center;
         gap: 12px;
     }
-
     .chat-avatar {
         width: 40px;
         height: 40px;
@@ -136,19 +113,13 @@
         align-items: center;
         justify-content: center;
     }
-
-    .chat-bot-info {
-        display: flex;
-        flex-direction: column;
-    }
-
+    .chat-bot-info { display: flex; flex-direction: column; }
     .chat-bot-name {
         font-weight: 600;
         font-size: 16px;
         letter-spacing: 0.5px;
         text-transform: uppercase;
     }
-
     .chat-bot-status {
         font-size: 12px;
         opacity: 0.8;
@@ -158,7 +129,6 @@
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
-
     .status-dot {
         width: 6px;
         height: 6px;
@@ -166,7 +136,6 @@
         border-radius: 50%;
         display: inline-block;
     }
-
     .chat-close-btn {
         background: none;
         border: none;
@@ -181,12 +150,7 @@
         justify-content: center;
         transition: opacity 0.3s;
     }
-
-    .chat-close-btn:hover {
-        opacity: 0.7;
-    }
-
-    /* Messages Container - Clean white background */
+    .chat-close-btn:hover { opacity: 0.7; }
     .chat-messages {
         flex: 1;
         overflow-y: auto;
@@ -196,46 +160,16 @@
         gap: 16px;
         background: white;
     }
-
-    .chat-messages::-webkit-scrollbar {
-        width: 6px;
-    }
-
-    .chat-messages::-webkit-scrollbar-track {
-        background: #f1f1f1;
-    }
-
-    .chat-messages::-webkit-scrollbar-thumb {
-        background: #000;
-        border-radius: 3px;
-    }
-
-    .message {
-        animation: fadeIn 0.3s ease-out;
-        max-width: 85%;
-    }
-
+    .chat-messages::-webkit-scrollbar { width: 6px; }
+    .chat-messages::-webkit-scrollbar-track { background: #f1f1f1; }
+    .chat-messages::-webkit-scrollbar-thumb { background: #000; border-radius: 3px; }
+    .message { animation: fadeIn 0.3s ease-out; max-width: 85%; }
     @keyframes fadeIn {
-        from { 
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        to { 
-            opacity: 1;
-            transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
-
-    .message.user {
-        align-self: flex-end;
-    }
-
-    .message.bot {
-        align-self: flex-start;
-        display: flex;
-        gap: 8px;
-    }
-
+    .message.user { align-self: flex-end; }
+    .message.bot { align-self: flex-start; display: flex; gap: 8px; }
     .message-avatar {
         width: 28px;
         height: 28px;
@@ -248,7 +182,6 @@
         flex-shrink: 0;
         margin-top: 4px;
     }
-
     .message-content {
         background: white;
         padding: 12px 16px;
@@ -256,18 +189,15 @@
         border-radius: 8px;
         color: #000;
     }
-
     .message.user .message-content {
         background: #000;
         color: white;
         border: 1px solid #000;
     }
-
     .message.bot .message-content {
         background: #f9f9f9;
         border: 1px solid #ddd;
     }
-
     .message-timestamp {
         font-size: 11px;
         opacity: 0.6;
@@ -275,13 +205,21 @@
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
-
-    .message.user .message-timestamp {
-        text-align: right;
-        color: #ccc;
+    .message.user .message-timestamp { text-align: right; color: #ccc; }
+    .content-warning-banner {
+        background: #fff3cd;
+        border: 1px solid #ffc107;
+        color: #856404;
+        padding: 10px 14px;
+        border-radius: 6px;
+        margin-bottom: 10px;
+        font-size: 13px;
     }
-
-    /* Quick Actions - Minimal black and white */
+    .content-warning-banner.severe {
+        background: #f8d7da;
+        border-color: #dc3545;
+        color: #721c24;
+    }
     .quick-actions {
         padding: 12px 20px;
         border-top: 1px solid #ddd;
@@ -290,7 +228,6 @@
         gap: 8px;
         flex-shrink: 0;
     }
-
     .quick-action-btn {
         flex: 1;
         padding: 10px;
@@ -309,13 +246,7 @@
         gap: 6px;
         border-radius: 4px;
     }
-
-    .quick-action-btn:hover {
-        background: black;
-        color: white;
-    }
-
-    /* Input Area - Auto-expanding textarea */
+    .quick-action-btn:hover { background: black; color: white; }
     .chat-input-container {
         padding: 16px 20px;
         border-top: 1px solid #ddd;
@@ -326,7 +257,6 @@
         border-radius: 0 0 11px 11px;
         flex-shrink: 0;
     }
-
     .location-btn {
         width: 40px;
         height: 40px;
@@ -341,19 +271,8 @@
         flex-shrink: 0;
         border-radius: 4px;
     }
-
-    .location-btn:hover {
-        background: black;
-        color: white;
-    }
-
-    .input-wrapper {
-        flex: 1;
-        position: relative;
-        display: flex;
-        flex-direction: column;
-    }
-
+    .location-btn:hover { background: black; color: white; }
+    .input-wrapper { flex: 1; position: relative; }
     .char-counter {
         position: absolute;
         bottom: 8px;
@@ -365,16 +284,8 @@
         border-radius: 3px;
         pointer-events: none;
     }
-
-    .char-counter.warning {
-        color: #ff6600;
-    }
-
-    .char-counter.error {
-        color: #ff0000;
-        font-weight: bold;
-    }
-
+    .char-counter.warning { color: #ff6600; }
+    .char-counter.error { color: #ff0000; font-weight: bold; }
     .chat-input {
         width: 100%;
         padding: 12px 60px 12px 12px;
@@ -388,33 +299,10 @@
         max-height: 150px;
         overflow-y: auto;
         line-height: 1.4;
-        transition: border-color 0.3s;
         border-radius: 4px;
     }
-
-    .chat-input:focus {
-        outline: none;
-        border-color: #000;
-        box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
-    }
-
-    .chat-input::placeholder {
-        color: #999;
-    }
-
-    .chat-input::-webkit-scrollbar {
-        width: 4px;
-    }
-
-    .chat-input::-webkit-scrollbar-track {
-        background: #f1f1f1;
-    }
-
-    .chat-input::-webkit-scrollbar-thumb {
-        background: #666;
-        border-radius: 2px;
-    }
-
+    .chat-input:focus { outline: none; box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1); }
+    .chat-input::placeholder { color: #999; }
     .send-btn {
         width: 40px;
         height: 40px;
@@ -429,17 +317,8 @@
         flex-shrink: 0;
         border-radius: 4px;
     }
-
-    .send-btn:hover {
-        background: #333;
-    }
-
-    .send-btn:disabled {
-        background: #ccc;
-        cursor: not-allowed;
-    }
-
-    /* Typing indicator */
+    .send-btn:hover { background: #333; }
+    .send-btn:disabled { background: #ccc; cursor: not-allowed; }
     .typing-indicator {
         display: flex;
         gap: 4px;
@@ -449,7 +328,6 @@
         width: fit-content;
         border-radius: 8px;
     }
-
     .typing-dot {
         width: 8px;
         height: 8px;
@@ -457,27 +335,12 @@
         border-radius: 50%;
         animation: typing 1.4s infinite;
     }
-
-    .typing-dot:nth-child(2) {
-        animation-delay: 0.2s;
-    }
-
-    .typing-dot:nth-child(3) {
-        animation-delay: 0.4s;
-    }
-
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
     @keyframes typing {
-        0%, 60%, 100% {
-            transform: translateY(0);
-            opacity: 0.5;
-        }
-        30% {
-            transform: translateY(-10px);
-            opacity: 1;
-        }
+        0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+        30% { transform: translateY(-10px); opacity: 1; }
     }
-
-    /* Action buttons in messages */
     .action-button {
         margin-top: 12px;
         padding: 10px 16px;
@@ -487,43 +350,17 @@
         font-size: 12px;
         font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
         cursor: pointer;
-        transition: all 0.3s;
         display: inline-block;
         border-radius: 4px;
+        text-decoration: none;
     }
-
-    .action-button:hover {
-        background: #333;
-    }
-
-    /* Itinerary prompt buttons */
-    .itinerary-prompt-buttons {
-        margin-top: 16px;
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-    }
-
-    .yes-button {
-        background: #28a745 !important;
-        color: white;
-    }
-
-    .yes-button:hover {
-        background: #218838 !important;
-    }
-
-    .no-button {
-        background: #6c757d !important;
-        color: white;
-    }
-
-    .no-button:hover {
-        background: #5a6268 !important;
-    }
-
+    .action-button:hover { background: #333; color: white; }
+    .itinerary-prompt-buttons { margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap; }
+    .yes-button { background: #28a745 !important; }
+    .yes-button:hover { background: #218838 !important; }
+    .no-button { background: #6c757d !important; }
+    .no-button:hover { background: #5a6268 !important; }
     .navigation-button {
         margin-top: 12px;
         padding: 10px 16px;
@@ -532,103 +369,35 @@
         border: 1px solid #000;
         font-size: 12px;
         font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
         text-decoration: none;
         display: inline-block;
-        transition: all 0.3s;
         border-radius: 4px;
     }
-
-    .navigation-button:hover {
-        background: black;
-        color: white;
-    }
-
-    /* Artwork cards */
-    .artworks-list {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        margin-top: 12px;
-    }
-
-    .artwork-card {
-        padding: 12px;
-        background: white;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-    }
-
-    .artwork-title {
-        font-weight: 600;
-        margin-bottom: 4px;
-    }
-
-    .artwork-artist {
-        font-size: 12px;
-        color: #666;
-        margin-bottom: 4px;
-    }
-
-    .artwork-location {
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .artwork-distance {
-        font-size: 11px;
-        color: #999;
-        margin-top: 4px;
-    }
-
-    /* Responsive adjustments */
+    .navigation-button:hover { background: black; color: white; }
+    .artworks-list { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+    .artwork-card { padding: 12px; background: white; border: 1px solid #ddd; border-radius: 6px; }
+    .artwork-title { font-weight: 600; margin-bottom: 4px; }
+    .artwork-artist { font-size: 12px; color: #666; margin-bottom: 4px; }
+    .artwork-location { font-size: 11px; color: #888; }
+    .artwork-distance { font-size: 11px; color: #999; margin-top: 4px; }
     @media (max-width: 768px) {
         .chat-window {
-            width: 100%;
-            height: 100%;
-            max-width: 100%;
-            max-height: 100%;
-            min-width: 100%;
-            min-height: 100%;
-            bottom: 0;
-            right: 0;
-            border-radius: 0;
-            border: none;
-            box-shadow: none;
+            width: 100%; height: 100%; max-width: 100%; max-height: 100%;
+            min-width: 100%; min-height: 100%; bottom: 0; right: 0;
+            border-radius: 0; border: none; box-shadow: none;
         }
-
-        .chat-header {
-            border-radius: 0;
-            cursor: default;
-        }
-
-        .chat-input-container {
-            border-radius: 0;
-        }
-
-        .chat-resize-handle {
-            display: none;
-        }
+        .chat-header { border-radius: 0; cursor: default; }
+        .chat-input-container { border-radius: 0; }
+        .chat-resize-handle { display: none; }
     }
 </style>
 
 <!-- Chat Widget HTML -->
 <div class="chat-toggle-btn" id="chatToggle">
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="black" xmlns="http://www.w3.org/2000/svg">
-        <!-- Antenna -->
-        <rect x="11" y="1" width="2" height="4" fill="black"/>
-        <circle cx="12" cy="2" r="1.5" fill="black"/>
-        
-        <!-- Head/Body -->
-        <rect x="4" y="6" width="16" height="14" rx="2" ry="2" fill="black"/>
-        
-        <!-- Eyes -->
-        <circle cx="9" cy="11" r="1.5" fill="white"/>
-        <circle cx="15" cy="11" r="1.5" fill="white"/>
-        
-        <!-- Mouth/Panel -->
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="black">
+        <rect x="11" y="1" width="2" height="4"/><circle cx="12" cy="2" r="1.5"/>
+        <rect x="4" y="6" width="16" height="14" rx="2" ry="2"/>
+        <circle cx="9" cy="11" r="1.5" fill="white"/><circle cx="15" cy="11" r="1.5" fill="white"/>
         <rect x="8" y="15" width="8" height="1.5" rx="0.75" fill="white"/>
     </svg>
     <div class="chat-toggle-badge" id="unreadBadge" style="display: none;">0</div>
@@ -638,28 +407,16 @@
     <div class="chat-header" id="chatHeader">
         <div class="chat-header-info">
             <div class="chat-avatar">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="black" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Antenna -->
-                    <rect x="11" y="1" width="2" height="4" fill="black"/>
-                    <circle cx="12" cy="2" r="1.5" fill="black"/>
-                    
-                    <!-- Head/Body -->
-                    <rect x="4" y="6" width="16" height="14" rx="2" ry="2" fill="black"/>
-                    
-                    <!-- Eyes -->
-                    <circle cx="9" cy="11" r="1.5" fill="white"/>
-                    <circle cx="15" cy="11" r="1.5" fill="white"/>
-                    
-                    <!-- Mouth/Panel -->
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="black">
+                    <rect x="11" y="1" width="2" height="4"/><circle cx="12" cy="2" r="1.5"/>
+                    <rect x="4" y="6" width="16" height="14" rx="2" ry="2"/>
+                    <circle cx="9" cy="11" r="1.5" fill="white"/><circle cx="15" cy="11" r="1.5" fill="white"/>
                     <rect x="8" y="15" width="8" height="1.5" rx="0.75" fill="white"/>
                 </svg>
             </div>
             <div class="chat-bot-info">
                 <div class="chat-bot-name">ARTBOT</div>
-                <div class="chat-bot-status">
-                    <span class="status-dot"></span>
-                    ONLINE
-                </div>
+                <div class="chat-bot-status"><span class="status-dot"></span> ONLINE</div>
             </div>
         </div>
         <button class="chat-close-btn" id="chatClose">×</button>
@@ -669,53 +426,36 @@
 
     <div class="quick-actions">
         <button class="quick-action-btn" data-action="nearby">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-            </svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
             NEARBY
         </button>
         <button class="quick-action-btn" data-action="plan">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
-            </svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
             PLAN
         </button>
         <button class="quick-action-btn" data-action="help">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/>
-            </svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg>
             HELP
         </button>
     </div>
 
     <div class="chat-input-container">
         <button class="location-btn" id="locationBtn" title="Share location">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-            </svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
         </button>
         <div class="input-wrapper">
-            <textarea 
-                class="chat-input" 
-                id="chatInput" 
-                placeholder="Type your message..." 
-                rows="1"
-                maxlength="500"></textarea>
+            <textarea class="chat-input" id="chatInput" placeholder="Type your message..." rows="1" maxlength="500"></textarea>
             <div class="char-counter" id="charCounter">0/500</div>
         </div>
         <button class="send-btn" id="sendBtn">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-            </svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
         </button>
     </div>
-
     <div class="chat-resize-handle" id="resizeHandle"></div>
 </div>
 
 <script>
 (function() {
-    // Elements
     const chatWindow = document.getElementById('chatWindow');
     const chatToggle = document.getElementById('chatToggle');
     const chatClose = document.getElementById('chatClose');
@@ -729,42 +469,22 @@
     const chatHeader = document.getElementById('chatHeader');
     const resizeHandle = document.getElementById('resizeHandle');
 
-    // State
     const chatState = {
         isOpen: false,
         sessionId: null,
         unreadCount: 0,
-        userLocation: null,
-        isDragging: false,
-        isResizing: false,
-        dragOffset: { x: 0, y: 0 }
+        userLocation: null
     };
 
-    // Initialize
     init();
 
     function init() {
-        // Generate or retrieve session ID
         chatState.sessionId = sessionStorage.getItem('chatSessionId') || generateSessionId();
         sessionStorage.setItem('chatSessionId', chatState.sessionId);
-        
-        // Load chat history
         loadChatHistory();
-        
-        // Add welcome message if no history
-        setTimeout(() => {
-            if (chatMessages.children.length === 0) {
-                addWelcomeMessage();
-            }
-        }, 500);
-
-        // Setup auto-expanding textarea
+        setTimeout(() => { if (chatMessages.children.length === 0) addWelcomeMessage(); }, 500);
         setupAutoExpandingTextarea();
-        
-        // Setup drag functionality
         setupDragFunctionality();
-        
-        // Setup resize functionality
         setupResizeFunctionality();
     }
 
@@ -772,139 +492,71 @@
         return 'chat_' + Date.now() + '_' + Math.random().toString(36).substring(7);
     }
 
-    // Drag functionality for moving the window
     function setupDragFunctionality() {
-        let isDragging = false;
-        let currentX;
-        let currentY;
-        let initialX;
-        let initialY;
-
-        chatHeader.addEventListener('mousedown', dragStart);
-        document.addEventListener('mousemove', drag);
-        document.addEventListener('mouseup', dragEnd);
-
-        function dragStart(e) {
-            if (window.innerWidth <= 768) return; // Disable on mobile
-            
-            initialX = e.clientX;
-            initialY = e.clientY;
-            
+        let isDragging = false, startX, startY, currentX, currentY;
+        chatHeader.addEventListener('mousedown', function(e) {
+            if (window.innerWidth <= 768) return;
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
             const rect = chatWindow.getBoundingClientRect();
             currentX = rect.left;
             currentY = rect.top;
-            
-            isDragging = true;
-            chatHeader.style.cursor = 'grabbing';
-        }
-
-        function drag(e) {
+        });
+        document.addEventListener('mousemove', function(e) {
             if (!isDragging) return;
-            
             e.preventDefault();
-            
-            const dx = e.clientX - initialX;
-            const dy = e.clientY - initialY;
-            
-            chatWindow.style.left = (currentX + dx) + 'px';
-            chatWindow.style.top = (currentY + dy) + 'px';
+            chatWindow.style.left = (currentX + e.clientX - startX) + 'px';
+            chatWindow.style.top = (currentY + e.clientY - startY) + 'px';
             chatWindow.style.right = 'auto';
             chatWindow.style.bottom = 'auto';
-        }
-
-        function dragEnd() {
-            isDragging = false;
-            chatHeader.style.cursor = 'move';
-        }
+        });
+        document.addEventListener('mouseup', function() { isDragging = false; });
     }
 
-    // Resize functionality
     function setupResizeFunctionality() {
-        let isResizing = false;
-        let startX, startY, startWidth, startHeight;
-
+        let isResizing = false, startX, startY, startWidth, startHeight;
         resizeHandle.addEventListener('mousedown', function(e) {
-            if (window.innerWidth <= 768) return; // Disable on mobile
-            
+            if (window.innerWidth <= 768) return;
             isResizing = true;
             startX = e.clientX;
             startY = e.clientY;
             startWidth = parseInt(getComputedStyle(chatWindow).width, 10);
             startHeight = parseInt(getComputedStyle(chatWindow).height, 10);
-            
             e.preventDefault();
         });
-
         document.addEventListener('mousemove', function(e) {
             if (!isResizing) return;
-            
-            const width = startWidth + (e.clientX - startX);
-            const height = startHeight + (e.clientY - startY);
-            
-            // Apply min and max constraints
-            const minWidth = 320;
-            const maxWidth = 600;
-            const minHeight = 400;
-            const maxHeight = 800;
-            
-            if (width >= minWidth && width <= maxWidth) {
-                chatWindow.style.width = width + 'px';
-            }
-            
-            if (height >= minHeight && height <= maxHeight) {
-                chatWindow.style.height = height + 'px';
-            }
+            const w = Math.max(320, Math.min(600, startWidth + (e.clientX - startX)));
+            const h = Math.max(400, Math.min(800, startHeight + (e.clientY - startY)));
+            chatWindow.style.width = w + 'px';
+            chatWindow.style.height = h + 'px';
         });
-
-        document.addEventListener('mouseup', function() {
-            isResizing = false;
-        });
+        document.addEventListener('mouseup', function() { isResizing = false; });
     }
 
-    // Auto-expanding textarea functionality
     function setupAutoExpandingTextarea() {
         chatInput.addEventListener('input', function() {
-            // Update character counter
-            const currentLength = this.value.length;
-            const maxLength = this.getAttribute('maxlength');
-            charCounter.textContent = `${currentLength}/${maxLength}`;
-            
-            // Update counter color based on length
+            charCounter.textContent = this.value.length + '/500';
             charCounter.classList.remove('warning', 'error');
-            if (currentLength > maxLength * 0.9) {
-                charCounter.classList.add('error');
-            } else if (currentLength > maxLength * 0.75) {
-                charCounter.classList.add('warning');
-            }
-
-            // Auto-expand textarea
+            if (this.value.length > 450) charCounter.classList.add('error');
+            else if (this.value.length > 375) charCounter.classList.add('warning');
             this.style.height = 'auto';
             this.style.height = Math.min(this.scrollHeight, 150) + 'px';
-            
-            // Enable/disable send button
-            sendBtn.disabled = this.value.trim() === '' || currentLength > maxLength;
+            sendBtn.disabled = this.value.trim() === '';
         });
     }
 
-    // Toggle chat
     function toggleChat() {
         chatState.isOpen = !chatState.isOpen;
+        chatWindow.classList.toggle('open', chatState.isOpen);
         if (chatState.isOpen) {
-            chatWindow.classList.add('open');
             chatInput.focus();
             chatState.unreadCount = 0;
             updateUnreadBadge();
-        } else {
-            chatWindow.classList.remove('open');
         }
     }
 
-    function closeChat() {
-        chatState.isOpen = false;
-        chatWindow.classList.remove('open');
-    }
-
-    // Update unread badge
     function updateUnreadBadge() {
         if (chatState.unreadCount > 0) {
             unreadBadge.textContent = chatState.unreadCount > 9 ? '9+' : chatState.unreadCount;
@@ -914,288 +566,190 @@
         }
     }
 
-    // Send message
     function sendMessage() {
         const message = chatInput.value.trim();
-        if (message === '') return;
-
-        // Add user message
+        if (!message) return;
         addMessage(message, 'user');
         chatInput.value = '';
         chatInput.style.height = 'auto';
         charCounter.textContent = '0/500';
-        charCounter.classList.remove('warning', 'error');
-        
-        // Show typing indicator
         showTypingIndicator();
-        
-        // Send to backend
+
         fetch('/chatbot/api/chat/', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify({
-                message: message,
-                session_id: chatState.sessionId,
-                location: chatState.userLocation
-            })
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+            body: JSON.stringify({ message: message, session_id: chatState.sessionId, location: chatState.userLocation })
         })
-        .then(response => response.json())
+        .then(r => r.json())
         .then(data => {
             hideTypingIndicator();
             addMessage(data.response, 'bot', data.metadata);
         })
-        .catch(error => {
+        .catch(err => {
             hideTypingIndicator();
-            console.error('Error:', error);
-            addMessage('Sorry, I encountered an error. Please try again.', 'bot');
+            addMessage('Sorry, an error occurred. Please try again.', 'bot');
         });
     }
 
-    // Get user location
     function getLocation() {
-        if (navigator.geolocation) {
-            locationBtn.style.opacity = '0.5';
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    chatState.userLocation = {
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude
-                    };
-                    locationBtn.style.opacity = '1';
-                    addMessage('📍 Location shared', 'user');
-                },
-                (error) => {
-                    locationBtn.style.opacity = '1';
-                    addMessage('Unable to get your location. Please enable location services.', 'bot');
-                }
-            );
-        } else {
-            addMessage('Geolocation is not supported by your browser.', 'bot');
+        if (!navigator.geolocation) {
+            addMessage('Geolocation not supported by your browser.', 'bot');
+            return;
         }
+        locationBtn.style.opacity = '0.5';
+        navigator.geolocation.getCurrentPosition(
+            pos => {
+                chatState.userLocation = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
+                locationBtn.style.opacity = '1';
+                addMessage('📍 Location shared successfully!', 'user');
+            },
+            err => {
+                locationBtn.style.opacity = '1';
+                addMessage('Unable to get location. Please enable location services.', 'bot');
+            }
+        );
     }
 
-    // Handle quick actions
     function handleQuickAction(action) {
-        const actions = {
-            nearby: "Show me artworks nearby",
-            plan: "Help me plan an art tour",
-            help: "What can you help me with?"
+        const actions = { 
+            nearby: "Show me artworks nearby", 
+            plan: "Help me plan an art tour", 
+            help: "What can you help me with?" 
         };
-        
-        if (actions[action]) {
-            chatInput.value = actions[action];
-            sendMessage();
+        if (actions[action]) { 
+            chatInput.value = actions[action]; 
+            sendMessage(); 
         }
     }
 
-    // Add message to chat
     function addMessage(text, sender, metadata = null) {
         const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${sender}`;
-        
-        // Add avatar for bot messages
+        messageDiv.className = 'message ' + sender;
+
         if (sender === 'bot') {
             const avatarDiv = document.createElement('div');
             avatarDiv.className = 'message-avatar';
-            avatarDiv.innerHTML = `
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="black" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="11" y="1" width="2" height="4" fill="black"/>
-                    <circle cx="12" cy="2" r="1.5" fill="black"/>
-                    <rect x="4" y="6" width="16" height="14" rx="2" ry="2" fill="black"/>
-                    <circle cx="9" cy="11" r="1.5" fill="white"/>
-                    <circle cx="15" cy="11" r="1.5" fill="white"/>
-                    <rect x="8" y="15" width="8" height="1.5" rx="0.75" fill="white"/>
-                </svg>
-            `;
+            avatarDiv.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="black"><rect x="11" y="1" width="2" height="4"/><circle cx="12" cy="2" r="1.5"/><rect x="4" y="6" width="16" height="14" rx="2" ry="2"/><circle cx="9" cy="11" r="1.5" fill="white"/><circle cx="15" cy="11" r="1.5" fill="white"/><rect x="8" y="15" width="8" height="1.5" rx="0.75" fill="white"/></svg>';
             messageDiv.appendChild(avatarDiv);
         }
-        
+
         const contentDiv = document.createElement('div');
         contentDiv.className = 'message-content';
         
-        // Parse message for special content
-        let messageContent = text;
-        
-        // Handle metadata
+        // Process text - convert newlines to <br>
+        let messageContent = text.replace(/\n/g, '<br>');
+
         if (metadata) {
+            // Content warning
+            if (metadata.content_warning) {
+                const severity = metadata.moderation_severity === 'report' ? 'severe' : '';
+                messageContent = '<div class="content-warning-banner ' + severity + '">' + messageContent + '</div>';
+            }
+
+            // Artworks list
             if (metadata.artworks && metadata.artworks.length > 0) {
                 messageContent += '<div class="artworks-list">';
-                metadata.artworks.forEach(artwork => {
-                    messageContent += `
-                        <div class="artwork-card">
-                            <div class="artwork-title">${artwork.title}</div>
-                            <div class="artwork-artist">${artwork.artist}</div>
-                            <div class="artwork-location">${artwork.location}</div>
-                            ${artwork.distance ? `<div class="artwork-distance">${artwork.distance} miles away</div>` : ''}
-                        </div>
-                    `;
+                metadata.artworks.forEach(art => {
+                    messageContent += '<div class="artwork-card">' +
+                        '<div class="artwork-title">' + escapeHtml(art.title) + '</div>' +
+                        '<div class="artwork-artist">' + escapeHtml(art.artist) + '</div>' +
+                        '<div class="artwork-location">' + escapeHtml(art.location) + '</div>' +
+                        (art.distance ? '<div class="artwork-distance">' + art.distance + ' miles away</div>' : '') +
+                        '</div>';
                 });
                 messageContent += '</div>';
             }
-            
-            // Show Yes/No buttons for itinerary creation prompt
+
+            // Itinerary prompt buttons
             if (metadata.show_itinerary_prompt && metadata.suggested_locations) {
-                messageContent += `
-                    <div class="itinerary-prompt-buttons">
-                        <button class="action-button yes-button" onclick="handleItineraryResponse(true)">
-                            ✓ Yes, Create Itinerary
-                        </button>
-                        <button class="action-button no-button" onclick="handleItineraryResponse(false)">
-                            ✗ No, Thanks
-                        </button>
-                    </div>
-                `;
-                // Store suggested locations temporarily
+                messageContent += '<div class="itinerary-prompt-buttons">' +
+                    '<button class="action-button yes-button" onclick="handleItineraryResponse(true)">✓ Yes, Create Itinerary</button>' +
+                    '<button class="action-button no-button" onclick="handleItineraryResponse(false)">✗ No, Thanks</button>' +
+                    '</div>';
                 window.suggestedLocationIds = metadata.suggested_locations;
             }
-            
-            // Legacy support for old create_itinerary metadata
-            if (metadata.create_itinerary && !metadata.show_itinerary_prompt) {
-                messageContent += `
-                    <button class="action-button" onclick="createItineraryFromSuggestions()">
-                        Create Itinerary
-                    </button>
-                `;
-            }
-            
+
+            // Navigation button
             if (metadata.navigation) {
-                messageContent += `
-                    <a href="${metadata.navigation.url}" class="navigation-button">
-                        ${metadata.navigation.label}
-                    </a>
-                `;
+                const navName = metadata.navigation.name || 'Go';
+                messageContent += '<a href="' + metadata.navigation.url + '" class="navigation-button">' + escapeHtml(navName) + '</a>';
             }
-            
-            if (metadata.action_buttons) {
-                metadata.action_buttons.forEach(button => {
-                    messageContent += `
-                        <button class="action-button" onclick="${button.action}">
-                            ${button.label}
-                        </button>
-                    `;
-                });
+
+            // Action button
+            if (metadata.action_button) {
+                messageContent += '<a href="' + metadata.action_button.url + '" class="action-button">' + escapeHtml(metadata.action_button.text) + '</a>';
             }
         }
-        
+
         contentDiv.innerHTML = messageContent;
         
-        // Add timestamp
         const timestamp = document.createElement('div');
         timestamp.className = 'message-timestamp';
-        timestamp.textContent = formatTimestamp(new Date());
+        timestamp.textContent = 'just now';
         contentDiv.appendChild(timestamp);
         
         messageDiv.appendChild(contentDiv);
         chatMessages.appendChild(messageDiv);
-        
-        // Scroll to bottom
         chatMessages.scrollTop = chatMessages.scrollHeight;
-        
-        // Update unread count
+
         if (sender === 'bot' && !chatState.isOpen) {
             chatState.unreadCount++;
             updateUnreadBadge();
         }
     }
 
-    // Add welcome message
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
     function addWelcomeMessage() {
         const welcomeDiv = document.createElement('div');
         welcomeDiv.className = 'message bot';
-        welcomeDiv.innerHTML = `
-            <div class="message-avatar">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="black" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="11" y="1" width="2" height="4" fill="black"/>
-                    <circle cx="12" cy="2" r="1.5" fill="black"/>
-                    <rect x="4" y="6" width="16" height="14" rx="2" ry="2" fill="black"/>
-                    <circle cx="9" cy="11" r="1.5" fill="white"/>
-                    <circle cx="15" cy="11" r="1.5" fill="white"/>
-                    <rect x="8" y="15" width="8" height="1.5" rx="0.75" fill="white"/>
-                </svg>
-            </div>
-            <div class="message-content">
-                <div>Hello! I'm ArtBot, your NYC public art assistant.</div>
-                <br>
-                <div>I can help you:</div>
-                <div style="margin-top: 8px; margin-left: 10px;">
-                    • Find artworks near you<br>
-                    • Plan art tours<br>
-                    • Navigate the website<br>
-                    • Answer questions
-                </div>
-                <br>
-                <div>How can I assist you today?</div>
-                <div class="message-timestamp">${formatTimestamp(new Date())}</div>
-            </div>
-        `;
+        welcomeDiv.innerHTML = '<div class="message-avatar"><svg width="20" height="20" viewBox="0 0 24 24" fill="black"><rect x="11" y="1" width="2" height="4"/><circle cx="12" cy="2" r="1.5"/><rect x="4" y="6" width="16" height="14" rx="2" ry="2"/><circle cx="9" cy="11" r="1.5" fill="white"/><circle cx="15" cy="11" r="1.5" fill="white"/><rect x="8" y="15" width="8" height="1.5" rx="0.75" fill="white"/></svg></div>' +
+            '<div class="message-content">' +
+            '<div>Hello! I\'m ArtBot, your NYC public art assistant.</div><br>' +
+            '<div>I can help you:</div>' +
+            '<div style="margin-top: 8px; margin-left: 10px;">' +
+            '• Find artworks near you<br>' +
+            '• Plan art tours<br>' +
+            '• Navigate the website<br>' +
+            '• Answer questions about features</div><br>' +
+            '<div>How can I assist you today?</div>' +
+            '<div class="message-timestamp">just now</div>' +
+            '</div>';
         chatMessages.appendChild(welcomeDiv);
     }
 
-    // Typing indicator
     function showTypingIndicator() {
         const typingDiv = document.createElement('div');
         typingDiv.className = 'message bot';
         typingDiv.id = 'typing-indicator';
-        typingDiv.innerHTML = `
-            <div class="message-avatar">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="black" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="11" y="1" width="2" height="4" fill="black"/>
-                    <circle cx="12" cy="2" r="1.5" fill="black"/>
-                    <rect x="4" y="6" width="16" height="14" rx="2" ry="2" fill="black"/>
-                    <circle cx="9" cy="11" r="1.5" fill="white"/>
-                    <circle cx="15" cy="11" r="1.5" fill="white"/>
-                    <rect x="8" y="15" width="8" height="1.5" rx="0.75" fill="white"/>
-                </svg>
-            </div>
-            <div class="typing-indicator">
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-            </div>
-        `;
+        typingDiv.innerHTML = '<div class="message-avatar"><svg width="20" height="20" viewBox="0 0 24 24" fill="black"><rect x="11" y="1" width="2" height="4"/><circle cx="12" cy="2" r="1.5"/><rect x="4" y="6" width="16" height="14" rx="2" ry="2"/><circle cx="9" cy="11" r="1.5" fill="white"/><circle cx="15" cy="11" r="1.5" fill="white"/><rect x="8" y="15" width="8" height="1.5" rx="0.75" fill="white"/></svg></div><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
         chatMessages.appendChild(typingDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
     function hideTypingIndicator() {
-        const typingDiv = document.getElementById('typing-indicator');
-        if (typingDiv) {
-            typingDiv.remove();
-        }
+        const el = document.getElementById('typing-indicator');
+        if (el) el.remove();
     }
 
-    // Format timestamp
-    function formatTimestamp(date) {
-        const now = new Date();
-        const diff = Math.floor((now - date) / 1000);
-        
-        if (diff < 60) return 'just now';
-        if (diff < 3600) return Math.floor(diff / 60) + ' min ago';
-        if (diff < 86400) return Math.floor(diff / 3600) + ' hours ago';
-        return date.toLocaleDateString();
-    }
-
-    // Load chat history
     function loadChatHistory() {
-        fetch(`/chatbot/api/history/?session_id=${chatState.sessionId}`)
-            .then(response => response.json())
+        fetch('/chatbot/api/history/?session_id=' + chatState.sessionId)
+            .then(r => r.json())
             .then(data => {
                 if (data.messages && data.messages.length > 0) {
-                    data.messages.forEach(msg => {
-                        addMessage(msg.message, msg.sender, msg.metadata);
-                    });
+                    data.messages.forEach(msg => addMessage(msg.message, msg.sender, msg.metadata));
                 }
             })
-            .catch(error => console.error('Error loading history:', error));
+            .catch(err => console.error('Error loading history:', err));
     }
 
-    // Get CSRF cookie
     function getCookie(name) {
         let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
+        if (document.cookie) {
             const cookies = document.cookie.split(';');
             for (let i = 0; i < cookies.length; i++) {
                 const cookie = cookies[i].trim();
@@ -1208,82 +762,28 @@
         return cookieValue;
     }
 
-    // Global function for handling Yes/No itinerary response
-    window.handleItineraryResponse = function(createItinerary) {
-        if (createItinerary) {
-            // User clicked Yes - redirect to itinerary create page
-            if (window.suggestedLocationIds && window.suggestedLocationIds.length > 0) {
-                // Add a confirmation message
-                addMessage('Great! Redirecting you to create your itinerary...', 'bot');
-                
-                // Redirect to itinerary create page (the locations are already stored in session by backend)
-                setTimeout(() => {
-                    window.location.href = '/itineraries/create/';
-                }, 1000);
-            } else {
-                // No locations stored, just redirect to create page
-                window.location.href = '/itineraries/create/';
-            }
+    // Global function for itinerary response
+    window.handleItineraryResponse = function(create) {
+        if (create && window.suggestedLocationIds && window.suggestedLocationIds.length > 0) {
+            addMessage('Great! Redirecting you to create your itinerary...', 'bot');
+            setTimeout(() => { window.location.href = '/itineraries/create/'; }, 1000);
         } else {
-            // User clicked No - send confirmation and continue conversation
-            addMessage('No problem! Feel free to continue exploring or ask me anything else.', 'bot');
-            // Clear suggested locations
+            addMessage('No problem! Feel free to ask me anything else about NYC public art.', 'bot');
             window.suggestedLocationIds = null;
         }
-        
-        // Disable the buttons after clicking
-        const promptButtons = document.querySelectorAll('.itinerary-prompt-buttons button');
-        promptButtons.forEach(btn => {
+        document.querySelectorAll('.itinerary-prompt-buttons button').forEach(btn => {
             btn.disabled = true;
             btn.style.opacity = '0.5';
             btn.style.cursor = 'not-allowed';
         });
     };
 
-    // Global function for creating itinerary
-    window.createItineraryFromSuggestions = function() {
-        const lastBotMessage = Array.from(chatMessages.querySelectorAll('.message.bot')).pop();
-        const artworkCards = lastBotMessage.querySelectorAll('.artwork-card');
-        
-        const locations = Array.from(artworkCards).map(card => ({
-            title: card.querySelector('.artwork-title').textContent,
-            location: card.querySelector('.artwork-location').textContent
-        }));
-        
-        fetch('/chatbot/api/prepare-itinerary/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify({
-                locations: locations
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            window.location.href = '/itinerary/create/';
-        })
-        .catch(error => console.error('Error preparing itinerary:', error));
-    };
-
     // Event listeners
     chatToggle.addEventListener('click', toggleChat);
-    chatClose.addEventListener('click', closeChat);
-    sendBtn.addEventListener('click', () => sendMessage());
+    chatClose.addEventListener('click', () => { chatState.isOpen = false; chatWindow.classList.remove('open'); });
+    sendBtn.addEventListener('click', sendMessage);
     locationBtn.addEventListener('click', getLocation);
-    
-    chatInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage();
-        }
-    });
-    
-    quickActionBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            handleQuickAction(btn.dataset.action);
-        });
-    });
+    chatInput.addEventListener('keypress', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+    quickActionBtns.forEach(btn => btn.addEventListener('click', () => handleQuickAction(btn.dataset.action)));
 })();
 </script>

@@ -4,6 +4,10 @@ from .models import ChatSession, ChatMessage
 from .ai_service import ArtineraryAI
 import json
 import uuid
+import logging
+
+# Set up logger for moderation events
+moderation_logger = logging.getLogger("chatbot.moderation")
 
 
 @login_required
@@ -49,6 +53,17 @@ def chat_view(request):
             ai = ArtineraryAI()
             response_data = ai.process_message(message, request.user, user_location)
 
+            # Log moderation events
+            if response_data.get("metadata", {}).get("content_warning"):
+                severity = response_data["metadata"].get("moderation_severity", "warn")
+                moderation_logger.warning(
+                    f"Content moderation triggered | "
+                    f"User: {request.user.username} | "
+                    f"Severity: {severity} | "
+                    f"Session: {session_id} | "
+                    f"Message: {message[:100]}..."
+                )
+
             # Save bot response
             bot_message = ChatMessage.objects.create(
                 session=session,
@@ -67,8 +82,8 @@ def chat_view(request):
                     "locations in session"
                 )
 
-            print(f"Bot response: {response_data['message']}")
-            print(f"Metadata: {response_data.get('metadata', {})}")
+            print(f"Bot response: {response_data['message'][:100]}...")
+            print(f"Metadata keys: {response_data.get('metadata', {}).keys()}")
 
             return JsonResponse(
                 {
@@ -185,6 +200,36 @@ def prepare_itinerary(request):
             traceback.print_exc()
             return JsonResponse(
                 {"success": False, "error": "Error preparing itinerary"}, status=500
+            )
+
+    return JsonResponse({"error": "Invalid request method"}, status=400)
+
+
+@login_required
+def clear_chat(request):
+    """Clear chat history for current session"""
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body) if request.body else {}
+            session_id = data.get("session_id", "")
+
+            if session_id:
+                try:
+                    session = ChatSession.objects.get(
+                        user=request.user, session_id=session_id
+                    )
+                    # Delete all messages in this session
+                    session.messages.all().delete()
+                    print(f"Cleared chat session: {session_id}")
+                except ChatSession.DoesNotExist:
+                    pass
+
+            return JsonResponse({"success": True})
+
+        except Exception as e:
+            print(f"Error in clear_chat: {e}")
+            return JsonResponse(
+                {"success": False, "error": "Error clearing chat"}, status=500
             )
 
     return JsonResponse({"error": "Invalid request method"}, status=400)
