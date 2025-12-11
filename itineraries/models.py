@@ -12,7 +12,7 @@ class Itinerary(models.Model):
     """Model representing a user's itinerary"""
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="itineraries")
-    title = models.CharField(max_length=200)
+    title = models.CharField(max_length=200, unique=True)
     description = models.TextField(blank=True, null=True)
     date = models.DateField(
         blank=True, null=True, help_text="Planned date for this itinerary"

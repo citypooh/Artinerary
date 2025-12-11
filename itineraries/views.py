@@ -382,6 +382,14 @@ def api_add_to_itinerary(request):
         location = get_object_or_404(PublicArt, id=location_id)
 
         if new_itinerary_title:
+            if Itinerary.objects.filter(title=new_itinerary_title).exists():
+                return JsonResponse(
+                    {
+                        "success": False,
+                        "error": "An itinerary with this title already exists.",
+                    },
+                    status=400,
+                )
             itinerary = Itinerary.objects.create(
                 user=request.user, title=new_itinerary_title.strip()
             )
