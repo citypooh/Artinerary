@@ -1278,3 +1278,127 @@ class UpdateEventFormTests(TestCase):
         self.assertEqual(response.status_code, 200)
         # Check that event title links to detail page
         self.assertContains(response, f'href="{self.event.get_absolute_url()}"')
+
+
+class Base62UtilsTests(TestCase):
+    """Test Base62 encoding/decoding utilities"""
+
+    def test_encode_decode_round_trip(self):
+        """Test that encoding and decoding are inverse operations"""
+        from .utils import base62_encode, base62_decode
+
+        test_cases = [1, 42, 123, 1234, 12345, 123456, 999999]
+        for num in test_cases:
+            encoded = base62_encode(num)
+            decoded = base62_decode(encoded)
+            self.assertEqual(decoded, num, f"Round trip failed for {num}")
+
+    def test_decode_invalid_char_raises(self):
+        """Test that decoding invalid characters raises ValueError"""
+        from .utils import base62_decode
+
+        with self.assertRaises(ValueError):
+            base62_decode("!@#")
+        
+        with self.assertRaises(ValueError):
+            base62_decode("abc!def")
+
+    def test_encode_rejects_non_positive(self):
+        """Test that encoding non-positive integers raises ValueError"""
+        from .utils import base62_encode
+
+        with self.assertRaises(ValueError):
+            base62_encode(0)
+        
+        with self.assertRaises(ValueError):
+            base62_encode(-1)
+        
+        with self.assertRaises(ValueError):
+            base62_encode(-100)
+
+
+class EventShareRedirectTests(TestCase):
+    """Test share link redirect functionality"""
+
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(
+            username="testuser", email="test@example.com", password="password123"
+        )
+        self.location = PublicArt.objects.create(
+            title="Test Art",
+            artist_name="Test Artist",
+            latitude=40.7128,
+            longitude=-74.0060,
+        )
+        self.event = Event.objects.create(
+            title="Test Event",
+            host=self.user,
+            start_time=timezone.now() + timedelta(hours=2),
+            start_location=self.location,
+            visibility=EventVisibility.PUBLIC_OPEN,
+        )
+
+    def test_share_redirect_resolves_to_detail(self):
+        """Test that share redirect resolves to event detail page"""
+        from .utils import get_event_share_code
+
+        self.client.login(username="testuser", password="password123")
+        share_code = get_event_share_code(self.event.id)
+        
+        response = self.client.get(
+            reverse("events:share_redirect", kwargs={"code": share_code}),
+            follow=False
+        )
+        
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, self.event.get_absolute_url())
+
+    def test_share_redirect_requires_login(self):
+        """Test that share redirect requires authentication"""
+        from .utils import get_event_share_code
+
+        share_code = get_event_share_code(self.event.id)
+        
+        response = self.client.get(
+            reverse("events:share_redirect", kwargs={"code": share_code}),
+            follow=False
+        )
+        
+        # Should redirect to login
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/accounts/login", response.url)
+        self.assertIn("next=", response.url)
+
+    def test_share_redirect_invalid_code(self):
+        """Test that invalid share codes redirect to public events"""
+        self.client.login(username="testuser", password="password123")
+        
+        response = self.client.get(
+            reverse("events:share_redirect", kwargs={"code": "!!!"}),
+            follow=True
+        )
+        
+        # Should redirect to public events with error message
+        self.assertEqual(response.status_code, 200)
+        # Check that we're on the public events page
+        self.assertContains(response, "Public Events", status_code=200)
+
+    def test_share_redirect_soft_deleted_event(self):
+        """Test that soft-deleted events return 404"""
+        from .utils import get_event_share_code
+
+        self.client.login(username="testuser", password="password123")
+        share_code = get_event_share_code(self.event.id)
+        
+        # Soft delete the event
+        self.event.is_deleted = True
+        self.event.save()
+        
+        response = self.client.get(
+            reverse("events:share_redirect", kwargs={"code": share_code}),
+            follow=False
+        )
+        
+        # Should return 404
+        self.assertEqual(response.status_code, 404)

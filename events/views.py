@@ -27,6 +27,7 @@ from .selectors import (
 )
 from .enums import InviteStatus, MessageReportReason
 from .models import EventChatMessage, MessageReport, DirectChat, DirectMessage
+from .utils import base62_decode, get_event_share_code
 
 
 @login_required
@@ -106,12 +107,18 @@ def detail(request, slug):
     # Check if user has favorited this event
     is_favorited = EventFavorite.objects.filter(event=event, user=request.user).exists()
 
+    # Compute share URL
+    share_code = get_event_share_code(event.id)
+    relative_share_url = reverse("events:share_redirect", kwargs={"code": share_code})
+    share_url = request.build_absolute_uri(relative_share_url)
+
     context = {
         "event": event,
         "user_role": user_role,
         "additional_locations": additional_locations,
         "attendees": attendees,
         "is_favorited": is_favorited,
+        "share_url": share_url,
     }
 
     # Participant-specific data
@@ -133,6 +140,26 @@ def detail(request, slug):
 def index(request):
     """Redirect to public events as default"""
     return redirect("events:public")
+
+
+@login_required
+def event_share_redirect(request, code: str):
+    """
+    Redirect short share code to event detail page.
+    
+    Only accessible to logged-in users. Decodes Base62 code to event ID
+    and redirects to the canonical event detail URL.
+    """
+    try:
+        event_id = base62_decode(code)
+        if event_id <= 0:
+            raise ValueError("Invalid event ID")
+    except ValueError:
+        messages.error(request, "Invalid event link.")
+        return redirect("events:public")
+
+    event = get_object_or_404(Event, id=event_id, is_deleted=False)
+    return redirect(event.get_absolute_url())
 
 
 @login_required
