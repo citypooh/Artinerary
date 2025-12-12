@@ -4,7 +4,6 @@
 {% block title %}Dashboard - Artinerary{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
     .dashboard-container {
         padding: 2rem;
@@ -141,7 +140,7 @@
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
         padding: 0.5rem 1.5rem;
-        border-radius: 20px;
+        border-radius: 8px;
         text-decoration: none;
         font-weight: 600;
         margin-top: 1rem;
@@ -152,14 +151,6 @@
     .btn-action:hover {
         transform: scale(1.05);
         color: white;
-    }
-
-    /* Map Section */
-    #mini-map {
-        height: 300px;
-        width: 100%;
-        border-radius: 8px;
-        z-index: 1;
     }
 
     .view-all {
@@ -178,7 +169,6 @@
 <div class="dashboard-container">
     <div class="dashboard-header">
         <h1>Welcome back, {{ user.username }}!</h1>
-        <p class="text-muted">Here's what's happening in your art world.</p>
     </div>
 
     <div class="dashboard-grid">
@@ -252,16 +242,39 @@
             </div>
         </div>
 
-        <!-- Map Section -->
+        <!-- Featured Artwork Section -->
         <div class="dashboard-card">
             <div class="card-header">
                 <h2 class="card-title">
-                    <i class="fas fa-map-marked-alt"></i> Map Overview
+                    <i class="fas fa-palette"></i> Featured Artwork
                 </h2>
-                <a href="{% url 'artinerary:index' %}" class="view-all">Full Map</a>
+                <a href="{% url 'artinerary:index' %}" class="view-all">View Map</a>
             </div>
             <div class="card-content">
-                <div id="mini-map"></div>
+                {% if featured_artworks %}
+                {% for art in featured_artworks %}
+                <a href="{% url 'loc_detail:art_detail' art_id=art.id %}" class="list-item">
+                    <div class="item-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="item-details">
+                        <div class="item-title">{{ art.title }}</div>
+                        <div class="item-subtitle">
+                            {% if art.avg_rating %}
+                            <i class="fas fa-star text-warning"></i> {{ art.avg_rating }}
+                            {% else %}
+                            Not yet rated
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-image"></i>
+                    <p>No featured artworks yet.</p>
+                </div>
+                {% endif %}
             </div>
         </div>
 
@@ -307,29 +320,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Initialize mini map
-        var map = L.map('mini-map', {
-            zoomControl: false,
-            attributionControl: false
-        }).setView([40.7128, -74.0060], 13); // Default to NYC
-
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            maxZoom: 19
-        }).addTo(map);
-
-        // Try to get user location
-        if ("geolocation" in navigator) {
-            navigator.geolocation.getCurrentPosition(function (position) {
-                map.setView([position.coords.latitude, position.coords.longitude], 13);
-                L.marker([position.coords.latitude, position.coords.longitude]).addTo(map);
-            });
-        }
-    });
-</script>
 {% endblock %}
