@@ -107,7 +107,7 @@
     .chat-avatar {
         width: 40px;
         height: 40px;
-        /* background: white; */
+        background: white;
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -136,6 +136,27 @@
         border-radius: 50%;
         display: inline-block;
     }
+    .chat-header-buttons {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .chat-clear-btn {
+        background: none;
+        border: 1px solid rgba(255,255,255,0.3);
+        color: white;
+        font-size: 11px;
+        cursor: pointer;
+        padding: 6px 10px;
+        border-radius: 4px;
+        transition: all 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .chat-clear-btn:hover { 
+        background: rgba(255,255,255,0.1); 
+        border-color: rgba(255,255,255,0.5);
+    }
     .chat-close-btn {
         background: none;
         border: none;
@@ -155,13 +176,14 @@
         flex: 1;
         overflow-y: auto;
         padding: 20px;
-        /* display: flex; */
+        display: flex;
         flex-direction: column;
         gap: 16px;
+        background: white;
     }
-    /* .chat-messages::-webkit-scrollbar { width: 6px; }
+    .chat-messages::-webkit-scrollbar { width: 6px; }
     .chat-messages::-webkit-scrollbar-track { background: #f1f1f1; }
-    .chat-messages::-webkit-scrollbar-thumb { background: #000; border-radius: 3px; } */
+    .chat-messages::-webkit-scrollbar-thumb { background: #000; border-radius: 3px; }
     .message { animation: fadeIn 0.3s ease-out; max-width: 85%; }
     @keyframes fadeIn {
         from { opacity: 0; transform: translateY(10px); }
@@ -181,13 +203,13 @@
         flex-shrink: 0;
         margin-top: 4px;
     }
-    /* .message-content {
+    .message-content {
         background: white;
         padding: 12px 16px;
         border: 1px solid #000;
         border-radius: 8px;
         color: #000;
-    } */
+    }
     .message.user .message-content {
         background: #000;
         color: white;
@@ -349,76 +371,120 @@
         font-size: 12px;
         font-weight: 600;
         text-transform: uppercase;
+        letter-spacing: 0.5px;
         cursor: pointer;
+        transition: all 0.3s;
         display: inline-block;
-        border-radius: 4px;
         text-decoration: none;
+        text-align: center;
+        border-radius: 4px;
     }
     .action-button:hover { background: #333; color: white; }
-    .itinerary-prompt-buttons { margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap; }
-    .yes-button { background: #28a745 !important; }
-    .yes-button:hover { background: #218838 !important; }
-    .no-button { background: #6c757d !important; }
-    .no-button:hover { background: #5a6268 !important; }
     .navigation-button {
         margin-top: 12px;
         padding: 10px 16px;
-        background: white;
-        color: black;
-        border: 1px solid #000;
+        background: black;
+        color: white;
+        border: none;
         font-size: 12px;
         font-weight: 600;
-        text-decoration: none;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        transition: all 0.3s;
         display: inline-block;
+        text-decoration: none;
+        text-align: center;
         border-radius: 4px;
     }
-    .navigation-button:hover { background: black; color: white; }
-    .artworks-list { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
-    .artwork-card { padding: 12px; background: white; border: 1px solid #ddd; border-radius: 6px; }
-    .artwork-title { font-weight: 600; margin-bottom: 4px; }
-    .artwork-artist { font-size: 12px; color: #666; margin-bottom: 4px; }
-    .artwork-location { font-size: 11px; color: #888; }
-    .artwork-distance { font-size: 11px; color: #999; margin-top: 4px; }
+    .navigation-button:hover { background: #333; color: white; }
+    .artworks-list { margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+    .artwork-card {
+        background: white;
+        padding: 12px;
+        border: 1px solid #eee;
+        border-radius: 6px;
+        border-left: 3px solid #000;
+    }
+    .artwork-title {
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 4px;
+    }
+    .artwork-artist, .artwork-location, .artwork-distance {
+        font-size: 12px;
+        color: #666;
+        margin-top: 2px;
+    }
+    .itinerary-prompt-buttons {
+        margin-top: 12px;
+        display: flex;
+        gap: 10px;
+    }
+    .itinerary-prompt-buttons .yes-button {
+        background: #28a745;
+    }
+    .itinerary-prompt-buttons .yes-button:hover {
+        background: #218838;
+    }
+    .itinerary-prompt-buttons .no-button {
+        background: #6c757d;
+    }
+    .itinerary-prompt-buttons .no-button:hover {
+        background: #5a6268;
+    }
     @media (max-width: 768px) {
         .chat-window {
-            width: 100%; height: 100%; max-width: 100%; max-height: 100%;
-            min-width: 100%; min-height: 100%; bottom: 0; right: 0;
-            border-radius: 0; border: none; box-shadow: none;
+            bottom: 0;
+            right: 0;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            max-width: none;
+            max-height: none;
+            border-radius: 0;
         }
-        .chat-header { border-radius: 0; cursor: default; }
+        .chat-header { border-radius: 0; }
         .chat-input-container { border-radius: 0; }
-        .chat-resize-handle { display: none; }
+        .chat-toggle-btn { bottom: 15px; right: 15px; }
     }
 </style>
 
-<!-- Chat Widget HTML -->
-<div class="chat-toggle-btn" id="chatToggle">
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="black">
-        <rect x="11" y="1" width="2" height="4"/><circle cx="12" cy="2" r="1.5"/>
+<button class="chat-toggle-btn" id="chatToggle">
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor">
+        <rect x="11" y="1" width="2" height="4"/>
+        <circle cx="12" cy="2" r="1.5"/>
         <rect x="4" y="6" width="16" height="14" rx="2" ry="2"/>
-        <circle cx="9" cy="11" r="1.5" fill="white"/><circle cx="15" cy="11" r="1.5" fill="white"/>
+        <circle cx="9" cy="11" r="1.5" fill="white"/>
+        <circle cx="15" cy="11" r="1.5" fill="white"/>
         <rect x="8" y="15" width="8" height="1.5" rx="0.75" fill="white"/>
     </svg>
-    <div class="chat-toggle-badge" id="unreadBadge" style="display: none;">0</div>
-</div>
+    <span class="chat-toggle-badge" id="unreadBadge" style="display: none;">0</span>
+</button>
 
 <div class="chat-window" id="chatWindow">
     <div class="chat-header" id="chatHeader">
         <div class="chat-header-info">
             <div class="chat-avatar">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="black">
-                    <rect x="11" y="1" width="2" height="4"/><circle cx="12" cy="2" r="1.5"/>
+                    <rect x="11" y="1" width="2" height="4"/>
+                    <circle cx="12" cy="2" r="1.5"/>
                     <rect x="4" y="6" width="16" height="14" rx="2" ry="2"/>
-                    <circle cx="9" cy="11" r="1.5" fill="white"/><circle cx="15" cy="11" r="1.5" fill="white"/>
+                    <circle cx="9" cy="11" r="1.5" fill="white"/>
+                    <circle cx="15" cy="11" r="1.5" fill="white"/>
                     <rect x="8" y="15" width="8" height="1.5" rx="0.75" fill="white"/>
                 </svg>
             </div>
             <div class="chat-bot-info">
-                <div class="chat-bot-name">ARTBOT</div>
-                <div class="chat-bot-status"><span class="status-dot"></span> ONLINE</div>
+                <span class="chat-bot-name">ARTBOT</span>
+                <span class="chat-bot-status"><span class="status-dot"></span> ONLINE</span>
             </div>
         </div>
-        <button class="chat-close-btn" id="chatClose">×</button>
+        <div class="chat-header-buttons">
+            <button class="chat-clear-btn" id="chatClear" title="Clear chat history">Clear</button>
+            <button class="chat-close-btn" id="chatClose">×</button>
+        </div>
     </div>
 
     <div class="chat-messages" id="chatMessages"></div>
@@ -458,6 +524,7 @@
     const chatWindow = document.getElementById('chatWindow');
     const chatToggle = document.getElementById('chatToggle');
     const chatClose = document.getElementById('chatClose');
+    const chatClear = document.getElementById('chatClear');
     const chatMessages = document.getElementById('chatMessages');
     const chatInput = document.getElementById('chatInput');
     const sendBtn = document.getElementById('sendBtn');
@@ -495,6 +562,7 @@
         let isDragging = false, startX, startY, currentX, currentY;
         chatHeader.addEventListener('mousedown', function(e) {
             if (window.innerWidth <= 768) return;
+            if (e.target.closest('.chat-clear-btn') || e.target.closest('.chat-close-btn')) return;
             isDragging = true;
             startX = e.clientX;
             startY = e.clientY;
@@ -536,13 +604,11 @@
 
     function setupAutoExpandingTextarea() {
         chatInput.addEventListener('input', function() {
-            charCounter.textContent = this.value.length + '/500';
-            charCounter.classList.remove('warning', 'error');
-            if (this.value.length > 450) charCounter.classList.add('error');
-            else if (this.value.length > 375) charCounter.classList.add('warning');
-            this.style.height = 'auto';
+            this.style.height = '40px';
             this.style.height = Math.min(this.scrollHeight, 150) + 'px';
-            sendBtn.disabled = this.value.trim() === '';
+            const count = this.value.length;
+            charCounter.textContent = count + '/500';
+            charCounter.className = 'char-counter' + (count > 450 ? ' error' : (count > 375 ? ' warning' : ''));
         });
     }
 
@@ -550,19 +616,15 @@
         chatState.isOpen = !chatState.isOpen;
         chatWindow.classList.toggle('open', chatState.isOpen);
         if (chatState.isOpen) {
-            chatInput.focus();
             chatState.unreadCount = 0;
             updateUnreadBadge();
+            chatInput.focus();
         }
     }
 
     function updateUnreadBadge() {
-        if (chatState.unreadCount > 0) {
-            unreadBadge.textContent = chatState.unreadCount > 9 ? '9+' : chatState.unreadCount;
-            unreadBadge.style.display = 'flex';
-        } else {
-            unreadBadge.style.display = 'none';
-        }
+        unreadBadge.textContent = chatState.unreadCount;
+        unreadBadge.style.display = chatState.unreadCount > 0 ? 'flex' : 'none';
     }
 
     function sendMessage() {
@@ -570,8 +632,9 @@
         if (!message) return;
         addMessage(message, 'user');
         chatInput.value = '';
-        chatInput.style.height = 'auto';
+        chatInput.style.height = '40px';
         charCounter.textContent = '0/500';
+        charCounter.className = 'char-counter';
         showTypingIndicator();
 
         fetch('/chatbot/api/chat/', {
@@ -587,6 +650,27 @@
         .catch(err => {
             hideTypingIndicator();
             addMessage('Sorry, an error occurred. Please try again.', 'bot');
+        });
+    }
+
+    function clearChat() {
+        if (!confirm('Are you sure you want to clear the chat history?')) return;
+        
+        fetch('/chatbot/api/clear/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+            body: JSON.stringify({ session_id: chatState.sessionId })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                chatMessages.innerHTML = '';
+                addWelcomeMessage();
+                addMessage('Chat history cleared. How can I help you?', 'bot');
+            }
+        })
+        .catch(err => {
+            console.error('Error clearing chat:', err);
         });
     }
 
@@ -711,10 +795,10 @@
             '<div>Hello! I\'m ArtBot, your NYC public art assistant.</div><br>' +
             '<div>I can help you:</div>' +
             '<div style="margin-top: 8px; margin-left: 10px;">' +
-            '• Find artworks near you<br>' +
-            '• Plan art tours<br>' +
+            '• Find artworks near you or in specific areas<br>' +
+            '• Plan art tours and itineraries<br>' +
             '• Navigate the website<br>' +
-            '• Answer questions about features</div><br>' +
+            '• Answer questions about NYC public art</div><br>' +
             '<div>How can I assist you today?</div>' +
             '<div class="message-timestamp">just now</div>' +
             '</div>';
@@ -780,6 +864,7 @@
     // Event listeners
     chatToggle.addEventListener('click', toggleChat);
     chatClose.addEventListener('click', () => { chatState.isOpen = false; chatWindow.classList.remove('open'); });
+    chatClear.addEventListener('click', clearChat);
     sendBtn.addEventListener('click', sendMessage);
     locationBtn.addEventListener('click', getLocation);
     chatInput.addEventListener('keypress', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
