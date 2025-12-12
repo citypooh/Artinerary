@@ -12,6 +12,7 @@ from unittest.mock import patch, MagicMock
 from chatbot.ai_service import ArtineraryAI, ContentModerator
 from loc_detail.models import PublicArt
 
+
 @pytest.fixture(autouse=True)
 def fast_chatbot_mocks():
     """
