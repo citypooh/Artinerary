@@ -62,26 +62,61 @@ class ArtineraryAI:
     def __init__(self):
         genai.configure(api_key=settings.GEMINI_API_KEY)
         self.model = None
-        model_names = [
-            "gemini-2.5-flash",
-            "gemini-2.0-flash",
-        ]
+        self.available_models = []
 
-        for model_name in model_names:
-            try:
-                self.model = genai.GenerativeModel(model_name)
-                print(f"Successfully initialized Gemini model: {model_name}")
-                break
-            except Exception as e:
-                print(f"Failed to initialize {model_name}: {e}")
-                continue
+        # Auto-select the best available model
+        try:
+            for m in genai.list_models():
+                if "generateContent" in m.supported_generation_methods:
+                    skip_keywords = [
+                        "exp",
+                        "preview",
+                        "image",
+                        "tts",
+                        "vision",
+                        "embedding",
+                        "aqa",
+                    ]
+                    if any(skip in m.name.lower() for skip in skip_keywords):
+                        continue
+                    self.available_models.append(m.name.replace("models/", ""))
 
-        if self.model is None:
-            print("Warning: Could not initialize any Gemini model")
+            priority_keywords = [
+                "gemini-2.0-flash-lite",
+                "gemini-2.0-flash",
+                "gemini-2.5-flash",
+                "gemini-2.5-pro",
+                "gemini-flash",
+                "gemini-pro",
+            ]
+
+            selected_model = None
+            for keyword in priority_keywords:
+                for model_name in self.available_models:
+                    if keyword in model_name:
+                        selected_model = model_name
+                        break
+                if selected_model:
+                    break
+
+            if not selected_model and self.available_models:
+                selected_model = self.available_models[0]
+
+            if selected_model:
+                self.model = genai.GenerativeModel(selected_model)
+                self.current_model_name = selected_model
+                print(f"Successfully initialized Gemini model: {selected_model}")
+            else:
+                print("Warning: No suitable Gemini model found")
+                self.current_model_name = None
+
+        except Exception as e:
+            print(f"Error initializing Gemini model: {e}")
+            self.model = None
+            self.current_model_name = None
 
         self.est_tz = pytz.timezone("America/New_York")
 
-        # Website pages info for AI context
         self.website_pages = {
             "map": {
                 "url": "/artinerary/",
@@ -124,24 +159,72 @@ class ArtineraryAI:
                 ),
             },
             "profile": {
-                "url": "/user_profile/edit/",
+                "url": "/profile/",
                 "name": "My Profile",
-                "description": ("Edit your profile info, change picture, update bio."),
+                "description": ("View and edit your profile, update settings."),
             },
             "dashboard": {
                 "url": "/dashboard/",
                 "name": "Dashboard",
                 "description": (
-                    "Your home page with activity feed, "
-                    "recent itineraries, and recommendations."
+                    "Your personalized dashboard with recent activity "
+                    "and recommendations."
                 ),
             },
-            "chat": {
-                "url": "/chat/",
+            "messages": {
+                "url": "/messages/",
                 "name": "Messages",
-                "description": ("Chat with other users, discuss art, plan meetups."),
+                "description": (
+                    "Chat with other art enthusiasts, "
+                    "share discoveries, plan meetups."
+                ),
             },
         }
+
+    def _try_generate_with_fallback(self, prompt):
+        """Try to generate content, falling back to other models if rate limited"""
+        tried_models = set()
+
+        # First try with current model
+        if self.model:
+            try:
+                tried_models.add(self.current_model_name)
+                response = self.model.generate_content(prompt)
+                if response and response.text:
+                    return response.text
+            except Exception as e:
+                error_str = str(e)
+                if "429" in error_str or "quota" in error_str.lower():
+                    print(f"Rate limited on {self.current_model_name}, trying fallback")
+                else:
+                    print(f"Error with current model: {e}")
+
+        # Try fallback models if rate limited
+        for model_name in self.available_models:
+            if model_name in tried_models:
+                continue
+            tried_models.add(model_name)
+
+            try:
+                print(f"Trying fallback model: {model_name}")
+                fallback_model = genai.GenerativeModel(model_name)
+                response = fallback_model.generate_content(prompt)
+                if response and response.text:
+                    self.model = fallback_model
+                    self.current_model_name = model_name
+                    print(f"Switched to model: {model_name}")
+                    return response.text
+            except Exception as e:
+                error_str = str(e)
+                if "429" in error_str or "quota" in error_str.lower():
+                    print(f"Rate limited on {model_name} too, trying next")
+                    continue
+                else:
+                    print(f"Error with {model_name}: {e}")
+                    continue
+
+        print("All models rate limited or failed")
+        return None
 
     def calculate_distance(self, lat1, lon1, lat2, lon2):
         R = 3959
@@ -219,7 +302,7 @@ class ArtineraryAI:
         ]
 
     def search_artworks_by_location(self, location_query, limit=6):
-        """Search artworks by location/neighborhood"""
+        """Search artworks by location/neighborhood - DYNAMIC from database"""
         artworks = PublicArt.objects.filter(
             Q(location__icontains=location_query) | Q(borough__icontains=location_query)
         ).filter(latitude__isnull=False, longitude__isnull=False)[:limit]
@@ -259,9 +342,10 @@ class ArtineraryAI:
         ]
 
     def extract_location_from_message(self, message):
-        """Extract location/place names from user message"""
+        """Extract location/place names from user message - ROBUST VERSION"""
         message_lower = message.lower()
 
+        # Check for boroughs first
         boroughs = {
             "manhattan": "Manhattan",
             "brooklyn": "Brooklyn",
@@ -274,6 +358,7 @@ class ArtineraryAI:
             if key in message_lower:
                 return {"type": "borough", "value": value}
 
+        # Common NYC neighborhoods - quick matches
         neighborhoods = [
             "central park",
             "times square",
@@ -327,7 +412,6 @@ class ArtineraryAI:
             "fifth avenue",
             "herald square",
             "madison square",
-            "tribeca",
             "nolita",
             "noho",
         ]
@@ -336,84 +420,124 @@ class ArtineraryAI:
             if neighborhood in message_lower:
                 return {"type": "neighborhood", "value": neighborhood}
 
+        # Pattern 1: Street names (jay st, main street, 5th ave)
+        street_pattern = (
+            r"\b(\w+)\s+(st|street|ave|avenue|blvd|boulevard|"
+            r"rd|road|way|place|ln|lane)\b"
+        )
+        street_match = re.search(street_pattern, message_lower)
+        if street_match:
+            return {"type": "neighborhood", "value": street_match.group(0)}
+
+        # Pattern 2: Parks, Squares, Plazas, Gardens (abingdon square park, etc)
+        place_pattern = (
+            r"\b([\w\s]+?)\s*(square|park|plaza|garden|gardens|circle|center)\b"
+        )
+        place_match = re.search(place_pattern, message_lower)
+        if place_match:
+            full_match = place_match.group(0).strip()
+            skip_words = [
+                "the",
+                "a",
+                "an",
+                "in",
+                "at",
+                "on",
+                "near",
+                "around",
+                "any",
+                "show",
+                "find",
+                "art",
+                "artworks",
+                "artwork",
+                "what",
+                "where",
+                "is",
+                "are",
+                "me",
+                "to",
+            ]
+            words = full_match.split()
+            cleaned_words = [w for w in words if w not in skip_words]
+            if cleaned_words:
+                cleaned_match = " ".join(cleaned_words)
+                if len(cleaned_match) > 3:
+                    return {"type": "neighborhood", "value": cleaned_match}
+
+        # Pattern 3: Location after prepositions (near X, in X, at X)
+        prep_pattern = r"\b(?:near|in|at|around|by)\s+([a-z\s]{3,30}?)(?:\?|$|,|\.|\!)"
+        prep_match = re.search(prep_pattern, message_lower)
+        if prep_match:
+            potential_location = prep_match.group(1).strip()
+            non_locations = [
+                "me",
+                "here",
+                "this",
+                "that",
+                "the",
+                "area",
+                "my location",
+                "my",
+                "i",
+                "we",
+                "you",
+                "there",
+                "it",
+            ]
+            if potential_location not in non_locations and len(potential_location) > 2:
+                test_results = PublicArt.objects.filter(
+                    Q(location__icontains=potential_location)
+                ).exists()
+                if test_results:
+                    return {"type": "neighborhood", "value": potential_location}
+
+        # FALLBACK: Database search for multi-word phrases
+        words = message_lower.split()
+        for n in [3, 2]:
+            for i in range(len(words) - n + 1):
+                phrase = " ".join(words[i : i + n])
+                skip_phrases = [
+                    "show me",
+                    "find me",
+                    "any art",
+                    "public art",
+                    "what is",
+                    "where is",
+                    "can you",
+                    "i want",
+                    "artworks near",
+                    "artworks in",
+                    "art near",
+                    "art in",
+                ]
+                if phrase in skip_phrases:
+                    continue
+                if PublicArt.objects.filter(Q(location__icontains=phrase)).exists():
+                    return {"type": "neighborhood", "value": phrase}
+
         return None
 
     def get_nearby_places_info(self, location_name):
-        """Get suggestions for restaurants/bars near a location."""
-        area_suggestions = {
-            "columbus circle": [
-                ("Per Se", "Fine dining", "10 Columbus Circle"),
-                ("Landmarc", "French-American bistro", "Time Warner Center"),
-            ],
-            "central park": [
-                ("Tavern on the Green", "American", "Central Park West"),
-                ("The Loeb Boathouse", "Lakeside dining", "Central Park"),
-            ],
-            "times square": [
-                ("Junior's", "Diner & cheesecake", "1515 Broadway"),
-                ("Carmine's", "Italian family style", "200 W 44th St"),
-            ],
-            "broadway": [
-                ("Sardi's", "Theater district classic", "234 W 44th St"),
-                ("Joe Allen", "American bistro", "326 W 46th St"),
-            ],
-            "brooklyn": [
-                ("Juliana's Pizza", "Pizzeria", "DUMBO"),
-                ("The River Café", "Fine dining", "Brooklyn Bridge Park"),
-            ],
-            "dumbo": [
-                ("Juliana's Pizza", "Famous pizzeria", "19 Old Fulton St"),
-                ("Time Out Market", "Food hall", "55 Water St"),
-            ],
-            "soho": [
-                ("Balthazar", "French brasserie", "80 Spring St"),
-                ("The Mercer Kitchen", "American", "99 Prince St"),
-            ],
-            "williamsburg": [
-                ("Peter Luger", "Steakhouse", "178 Broadway"),
-                ("Lilia", "Italian", "567 Union Ave"),
-            ],
-            "chelsea": [
-                ("Buddakan", "Asian fusion", "75 9th Ave"),
-                ("Los Tacos No. 1", "Tacos", "Chelsea Market"),
-            ],
-            "east village": [
-                ("Veselka", "Ukrainian diner", "144 2nd Ave"),
-                ("Momofuku Noodle Bar", "Asian", "171 1st Ave"),
-            ],
-            "west village": [
-                ("L'Artusi", "Italian", "228 W 10th St"),
-                ("The Spotted Pig", "Gastropub", "314 W 11th St"),
-            ],
-            "upper west side": [
-                ("Barney Greengrass", "Deli", "541 Amsterdam Ave"),
-                ("Jacob's Pickles", "Southern", "509 Amsterdam Ave"),
-            ],
-            "upper east side": [
-                ("Cafe Sabarsky", "Viennese café", "Neue Galerie"),
-                ("JG Melon", "Burger joint", "1291 3rd Ave"),
-            ],
-            "harlem": [
-                ("Red Rooster", "American", "310 Lenox Ave"),
-                ("Sylvia's", "Soul food", "328 Malcolm X Blvd"),
-            ],
-            "financial district": [
-                ("The Dead Rabbit", "Irish bar", "30 Water St"),
-                ("Crown Shy", "New American", "70 Pine St"),
-            ],
-            "midtown": [
-                ("Grand Central Oyster Bar", "Seafood", "Grand Central"),
-                ("The Campbell", "Cocktail bar", "Grand Central"),
-            ],
-        }
+        """Get AI-generated suggestions for restaurants/bars near a location."""
+        if not self.model and not self.available_models:
+            return None
 
-        location_lower = location_name.lower()
-        for area_key, places in area_suggestions.items():
-            if area_key in location_lower or location_lower in area_key:
-                suggestions = []
-                for name, type_desc, address in places[:2]:
-                    suggestions.append(f"• {name} ({type_desc}) - {address}")
-                return "\n".join(suggestions)
+        prompt = f"""Suggest 2-3 popular restaurants or cafes near \
+{location_name} in NYC.
+Format each as: • Name (Type) - Address or cross street
+Keep it brief, no extra text. Just the list.
+Example format:
+• Joe's Pizza (Pizzeria) - Carmine St
+• Blue Ribbon (American) - Sullivan St"""
+
+        try:
+            response_text = self._try_generate_with_fallback(prompt)
+            if response_text:
+                return response_text.strip()
+        except Exception as e:
+            print(f"Error getting places info: {e}")
+
         return None
 
     def get_navigation_info(self, page_key):
@@ -442,7 +566,6 @@ class ArtineraryAI:
                 "attend",
                 "meetup",
                 "gathering",
-                "join",
             ],
             "itineraries": [
                 "itinerary",
@@ -470,14 +593,13 @@ class ArtineraryAI:
                 "dashboard",
                 "home page",
                 "main page",
-                "home",
             ],
-            "chat": [
-                "chat",
+            "messages": [
                 "message",
                 "messages",
-                "talk to user",
+                "chat with user",
                 "dm",
+                "inbox",
             ],
         }
 
@@ -515,77 +637,54 @@ class ArtineraryAI:
             location = self.extract_location_from_message(message)
             if location:
                 return True, location["value"]
-
         return False, None
 
-    def generate_ai_response(self, message, user, context_type="general"):
-        """
-        Generate AI response using Gemini for any query.
-        This is the main AI response generator.
-        """
-        # Build context about the website
-        pages_context = "\n".join(
-            [
-                f"- {info['name']} ({info['url']}): {info['description']}"
-                for info in self.website_pages.values()
-            ]
-        )
+    def generate_ai_response(self, message, user, context=None):
+        """Generate AI response using Gemini"""
+        username = user.first_name or user.username
 
-        system_prompt = f"""You are ArtBot, a friendly and helpful AI assistant \
-for Artinerary - a platform for exploring NYC public art.
+        system_context = f"""You are ArtBot, a friendly NYC public art guide assistant.
+User's name: {username}
 
-WEBSITE FEATURES:
-{pages_context}
+Key website features:
+- Interactive Map: View all artworks on a map at /artinerary/
+- Browse Artworks: Search and filter artworks at /loc_detail/
+- Events: Art events and meetups at /events/
+- Favorites: Save artworks at /favorites/
+- Itineraries: Plan art tours at /itineraries/
 
-YOUR CAPABILITIES:
-1. Help users find public artworks in NYC neighborhoods
-2. Guide users to website features (map, events, favorites, etc.)
-3. Answer questions about NYC public art
-4. Help plan art tours and itineraries
-5. Provide information about website features
+Keep responses concise, friendly, and helpful.
+Focus on NYC public art but be conversational.
+Don't use markdown formatting like ** or ##."""
 
-RESPONSE GUIDELINES:
-- Be conversational, friendly, and helpful
-- Keep responses concise (2-4 sentences typically)
-- When users ask about website features, explain AND offer to take them there
-- For art location queries, suggest specific neighborhoods or use the map
-- Do NOT use markdown formatting (no **, ##, bullet points with *)
-- Use plain text with natural line breaks
-- If asked about non-art topics, briefly acknowledge then redirect to art
+        if context:
+            system_context += f"\nContext: {context}"
 
-CONTEXT: User "{user.username}" is asking: "{message}"
-"""
+        prompt = f"{system_context}\n\nUser: {message}\nArtBot:"
 
         try:
-            if self.model:
-                response = self.model.generate_content(system_prompt)
-                if response and response.text:
-                    # Clean up any markdown that might slip through
-                    cleaned = response.text.strip()
-                    cleaned = re.sub(r"\*\*([^*]+)\*\*", r"\1", cleaned)
-                    cleaned = re.sub(r"\*([^*]+)\*", r"\1", cleaned)
-                    cleaned = re.sub(r"^#+\s*", "", cleaned, flags=re.MULTILINE)
-                    cleaned = re.sub(r"^\*\s+", "• ", cleaned, flags=re.MULTILINE)
-                    cleaned = re.sub(r"^-\s+", "• ", cleaned, flags=re.MULTILINE)
-                    return cleaned
-                else:
-                    return self._get_smart_fallback(message)
-            else:
-                return self._get_smart_fallback(message)
+            response_text = self._try_generate_with_fallback(prompt)
+            if response_text:
+                cleaned = response_text.strip()
+                cleaned = re.sub(r"\*\*([^*]+)\*\*", r"\1", cleaned)
+                cleaned = re.sub(r"\*([^*]+)\*", r"\1", cleaned)
+                cleaned = re.sub(r"^#+\s*", "", cleaned, flags=re.MULTILINE)
+                cleaned = re.sub(r"^\*\s+", "• ", cleaned, flags=re.MULTILINE)
+                cleaned = re.sub(r"^-\s+", "• ", cleaned, flags=re.MULTILINE)
+                return cleaned
         except Exception as e:
-            print(f"Gemini API error: {e}")
-            return self._get_smart_fallback(message)
+            print(f"Error generating AI response: {e}")
+
+        return self._get_smart_fallback(message)
 
     def _get_smart_fallback(self, message):
-        """Intelligent fallback when Gemini is unavailable"""
+        """Provide contextual fallback responses"""
         message_lower = message.lower()
 
-        # Page-specific fallbacks
-        if any(w in message_lower for w in ["map", "where is the map"]):
+        if any(w in message_lower for w in ["map", "where", "location", "find"]):
             return (
-                "The interactive map shows all NYC public artworks! "
-                "You can click on markers to see artwork details, "
-                "filter by borough, and plan your route. "
+                "You can explore all NYC public artworks on our Interactive Map! "
+                "It shows artwork locations across all five boroughs. "
                 "Would you like me to take you there?"
             )
 
@@ -625,9 +724,9 @@ CONTEXT: User "{user.username}" is asking: "{message}"
                 "Would you like to go to your dashboard?"
             )
 
-        if any(w in message_lower for w in ["chat", "message", "talk"]):
+        if any(w in message_lower for w in ["message", "chat", "inbox"]):
             return (
-                "You can chat with other art enthusiasts, "
+                "You can message other art enthusiasts, "
                 "discuss artworks, and plan meetups together. "
                 "Would you like to see your messages?"
             )
@@ -643,7 +742,14 @@ CONTEXT: User "{user.username}" is asking: "{message}"
                 "You can also explore our interactive map."
             )
 
-        # Default helpful response
+        if any(w in message_lower for w in ["help", "what can you"]):
+            return (
+                "I'm here to help you explore NYC public art! "
+                "You can ask me about artworks in specific areas, "
+                "website features like the map or events, "
+                "or how to plan an art tour. What interests you?"
+            )
+
         return (
             "I'm here to help you explore NYC public art! "
             "You can ask me about artworks in specific areas, "
@@ -662,56 +768,64 @@ CONTEXT: User "{user.username}" is asking: "{message}"
         # STEP 1: Check for inappropriate content
         is_inappropriate, severity, pattern = ContentModerator.check_content(message)
         if is_inappropriate:
+            moderation_logger.warning(
+                f"Inappropriate content detected - User: {user.username}, "
+                f"Severity: {severity}, Message: {message[:100]}"
+            )
             response_data["message"] = ContentModerator.get_warning_response(severity)
             response_data["metadata"]["content_warning"] = True
-            response_data["metadata"]["moderation_severity"] = severity
-            moderation_logger.warning(
-                f"Content flagged | User: {user.username} | " f"Severity: {severity}"
-            )
+            response_data["metadata"]["severity"] = severity
             return response_data
 
-        # STEP 2: Check for nearby artworks request (needs location data)
-        if any(
-            word in message_lower
-            for word in ["nearby", "near me", "around me", "close by", "close to me"]
-        ):
+        # STEP 2: Check for nearby request with user's location
+        nearby_keywords = [
+            "nearby",
+            "near me",
+            "around me",
+            "close by",
+            "close to me",
+            "closest",
+            "nearest",
+        ]
+        is_nearby_request = any(kw in message_lower for kw in nearby_keywords)
+
+        if is_nearby_request:
+            lat = None
+            lng = None
             if user_location:
                 lat = user_location.get("lat") or user_location.get("latitude")
                 lng = user_location.get("lng") or user_location.get("longitude")
-                if lat and lng:
-                    nearby_art = self.get_nearby_artworks(lat, lng)
-                    if nearby_art:
-                        response_data["message"] = (
-                            f"Found {len(nearby_art)} artworks near you!\n\n"
-                            "Would you like to create an itinerary with these?"
-                        )
-                        response_data["metadata"]["artworks"] = nearby_art
-                        response_data["metadata"]["show_itinerary_prompt"] = True
-                        response_data["metadata"]["suggested_locations"] = [
-                            art["id"] for art in nearby_art
-                        ]
-                    else:
-                        response_data["message"] = (
-                            "I couldn't find artworks within 2 miles. "
-                            "Try exploring a specific neighborhood or the map!"
-                        )
-                        response_data["metadata"]["navigation"] = (
-                            self.get_navigation_info("map")
-                        )
+
+            if lat and lng:
+                nearby_artworks = self.get_nearby_artworks(lat, lng)
+                if nearby_artworks:
+                    response_data["message"] = (
+                        f"Found {len(nearby_artworks)} artworks near you!"
+                    )
+                    response_data["metadata"]["artworks"] = nearby_artworks
+                    response_data["metadata"]["show_map"] = True
+                    response_data["metadata"]["show_itinerary_prompt"] = True
+                    response_data["metadata"]["suggested_locations"] = [
+                        art["id"] for art in nearby_artworks
+                    ]
                 else:
                     response_data["message"] = (
-                        "Please share your location using the 📍 button."
+                        "No artworks found within 2 miles of your location. "
+                        "Try exploring the map or searching for a nearby area!"
                     )
-                    response_data["metadata"]["request_location"] = True
+                    response_data["metadata"]["navigation"] = self.get_navigation_info(
+                        "map"
+                    )
             else:
                 response_data["message"] = (
-                    "To find nearby artworks, please share your location "
-                    "using the 📍 button below."
+                    "I'd love to show you nearby artworks! "
+                    "Please enable location sharing or tell me what "
+                    "area you'd like to explore."
                 )
                 response_data["metadata"]["request_location"] = True
             return response_data
 
-        # STEP 3: Check for restaurant/bar queries with location
+        # STEP 3: Check for restaurant/bar/places queries
         is_places_query, place_location = self.check_for_nearby_places_query(message)
         if is_places_query and place_location:
             location_info = self.extract_location_from_message(message)
@@ -719,25 +833,20 @@ CONTEXT: User "{user.username}" is asking: "{message}"
                 if location_info["type"] == "borough":
                     artworks = self.get_artworks_by_borough(location_info["value"])
                 else:
-                    artworks = self.search_artworks_by_location(location_info["value"])
+                    artworks = self.search_artworks_by_location(place_location)
 
                 places_info = self.get_nearby_places_info(place_location)
 
                 if artworks:
-                    msg = (
-                        f"Here are public artworks in " f"{place_location.title()}!\n\n"
-                    )
                     if places_info:
-                        msg += (
-                            f"Nearby dining options:\n{places_info}\n\n"
-                            "Would you like to create an art itinerary?"
+                        msg = (
+                            f"Great choice! Here are artworks and dining spots "
+                            f"near {place_location.title()}:\n\n"
+                            f"Nearby places:\n{places_info}\n\n"
+                            "I also found some artworks in this area!"
                         )
                     else:
-                        msg += (
-                            "For dining, I recommend Google Maps or Yelp "
-                            "for current options.\n\n"
-                            "Would you like to create an art itinerary?"
-                        )
+                        msg = f"Here are artworks near {place_location.title()}!"
 
                     response_data["message"] = msg
                     response_data["metadata"]["artworks"] = artworks
@@ -773,7 +882,7 @@ CONTEXT: User "{user.username}" is asking: "{message}"
                     f"Here are public artworks in " f"{location_info['value'].title()}!"
                 )
                 if places_info:
-                    msg += f"\n\nNearby Recreational Spots to Chill:\n{places_info}"
+                    msg += f"\n\nNearby spots:\n{places_info}"
                 msg += "\n\nWould you like to create an itinerary?"
 
                 response_data["message"] = msg
@@ -783,9 +892,10 @@ CONTEXT: User "{user.username}" is asking: "{message}"
                     art["id"] for art in artworks
                 ]
             else:
-                # Use AI to respond about the location
-                response_data["message"] = self.generate_ai_response(
-                    message, user, "location"
+                response_data["message"] = (
+                    f"I couldn't find artworks specifically in "
+                    f"{location_info['value'].title()} in our database. "
+                    f"Try browsing the map or searching for a nearby area!"
                 )
                 response_data["metadata"]["navigation"] = self.get_navigation_info(
                     "map"
@@ -797,7 +907,6 @@ CONTEXT: User "{user.username}" is asking: "{message}"
         if page_intent:
             page_info = self.get_navigation_info(page_intent)
             if page_info:
-                # Generate AI response about this feature
                 ai_response = self.generate_ai_response(
                     message, user, f"page_{page_intent}"
                 )
@@ -814,32 +923,28 @@ CONTEXT: User "{user.username}" is asking: "{message}"
                 if page_key in message_lower or page_info["name"].lower() in (
                     message_lower
                 ):
-                    response_data["message"] = f"Taking you to {page_info['name']}!"
+                    response_data["message"] = (
+                        f"Taking you to {page_info['name']}! "
+                        f"{page_info['description']}"
+                    )
                     response_data["metadata"]["navigation"] = page_info
                     return response_data
 
-        # STEP 7: Check for explicit search/find requests
-        if any(
-            word in message_lower
-            for word in ["find artwork", "search for", "look for artwork"]
-        ):
+        # STEP 7: Check for artwork search queries
+        search_indicators = [
+            "find artwork",
+            "search for",
+            "look for",
+            "show me artwork",
+            "any artwork",
+        ]
+        if any(indicator in message_lower for indicator in search_indicators):
             search_terms = message_lower
-            for word in [
-                "find",
-                "search",
-                "look for",
-                "artwork",
-                "artworks",
-                "art",
-                "the",
-                "some",
-                "any",
-                "for",
-            ]:
-                search_terms = search_terms.replace(word, "")
+            for indicator in search_indicators:
+                search_terms = search_terms.replace(indicator, "")
             search_terms = search_terms.strip()
 
-            if search_terms and len(search_terms) > 2:
+            if search_terms:
                 results = self.search_artworks(search_terms)
                 if results:
                     response_data["message"] = (
@@ -881,15 +986,7 @@ CONTEXT: User "{user.username}" is asking: "{message}"
             return response_data
 
         # STEP 10: For ALL other queries - use AI to generate response
-        # This is where the magic happens for general questions
         response_data["message"] = self.generate_ai_response(message, user)
-
-        # Check if we should add a navigation button based on AI response
-        ai_response_lower = response_data["message"].lower()
-        for page_key, page_info in self.website_pages.items():
-            if page_info["name"].lower() in ai_response_lower:
-                response_data["metadata"]["navigation"] = page_info
-                break
 
         print(f"Response: {response_data['message'][:100]}...")
         return response_data
