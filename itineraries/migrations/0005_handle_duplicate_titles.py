@@ -6,31 +6,32 @@ from django.db import migrations
 def handle_duplicate_titles(apps, schema_editor):
     """Rename duplicate itinerary titles for each user by appending a number"""
     Itinerary = apps.get_model("itineraries", "Itinerary")
-    
+
     # Get all users who have itineraries
     from django.contrib.auth import get_user_model
+
     User = get_user_model()
-    
+
     for user in User.objects.all():
         # Get all itineraries for this user
-        user_itineraries = Itinerary.objects.filter(user=user).order_by('created_at')
-        
+        user_itineraries = Itinerary.objects.filter(user=user).order_by("created_at")
+
         # Track titles we've seen for this user
         seen_titles = {}
-        
+
         for itinerary in user_itineraries:
             original_title = itinerary.title
-            
+
             if original_title in seen_titles:
                 # This is a duplicate - rename it
                 counter = seen_titles[original_title] + 1
                 new_title = f"{original_title} ({counter})"
-                
+
                 # Make sure the new title is also unique
                 while new_title in seen_titles:
                     counter += 1
                     new_title = f"{original_title} ({counter})"
-                
+
                 itinerary.title = new_title
                 itinerary.save()
                 seen_titles[new_title] = 1
