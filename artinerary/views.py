@@ -35,12 +35,9 @@ def dashboard(request):
     )[:3]
 
     # Get featured artworks (top 3 rated)
-    featured_artworks = (
-        PublicArt.objects.annotate(
-            avg_rating=Avg("comments__rating", filter=Q(comments__parent__isnull=True))
-        )
-        .order_by("-avg_rating")[:3]
-    )
+    featured_artworks = PublicArt.objects.annotate(
+        avg_rating=Avg("comments__rating", filter=Q(comments__parent__isnull=True))
+    ).order_by("-avg_rating")[:3]
 
     context = {
         "upcoming_events": upcoming_events,
