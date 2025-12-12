@@ -146,7 +146,7 @@ def index(request):
 def event_share_redirect(request, code: str):
     """
     Redirect short share code to event detail page.
-    
+
     Only accessible to logged-in users. Decodes Base62 code to event ID
     and redirects to the canonical event detail URL.
     """

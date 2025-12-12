@@ -1299,7 +1299,7 @@ class Base62UtilsTests(TestCase):
 
         with self.assertRaises(ValueError):
             base62_decode("!@#")
-        
+
         with self.assertRaises(ValueError):
             base62_decode("abc!def")
 
@@ -1309,10 +1309,10 @@ class Base62UtilsTests(TestCase):
 
         with self.assertRaises(ValueError):
             base62_encode(0)
-        
+
         with self.assertRaises(ValueError):
             base62_encode(-1)
-        
+
         with self.assertRaises(ValueError):
             base62_encode(-100)
 
@@ -1345,12 +1345,11 @@ class EventShareRedirectTests(TestCase):
 
         self.client.login(username="testuser", password="password123")
         share_code = get_event_share_code(self.event.id)
-        
+
         response = self.client.get(
-            reverse("events:share_redirect", kwargs={"code": share_code}),
-            follow=False
+            reverse("events:share_redirect", kwargs={"code": share_code}), follow=False
         )
-        
+
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, self.event.get_absolute_url())
 
@@ -1359,12 +1358,11 @@ class EventShareRedirectTests(TestCase):
         from .utils import get_event_share_code
 
         share_code = get_event_share_code(self.event.id)
-        
+
         response = self.client.get(
-            reverse("events:share_redirect", kwargs={"code": share_code}),
-            follow=False
+            reverse("events:share_redirect", kwargs={"code": share_code}), follow=False
         )
-        
+
         # Should redirect to login
         self.assertEqual(response.status_code, 302)
         self.assertIn("/accounts/login", response.url)
@@ -1373,12 +1371,11 @@ class EventShareRedirectTests(TestCase):
     def test_share_redirect_invalid_code(self):
         """Test that invalid share codes redirect to public events"""
         self.client.login(username="testuser", password="password123")
-        
+
         response = self.client.get(
-            reverse("events:share_redirect", kwargs={"code": "!!!"}),
-            follow=True
+            reverse("events:share_redirect", kwargs={"code": "!!!"}), follow=True
         )
-        
+
         # Should redirect to public events with error message
         self.assertEqual(response.status_code, 200)
         # Check that we're on the public events page
@@ -1390,15 +1387,14 @@ class EventShareRedirectTests(TestCase):
 
         self.client.login(username="testuser", password="password123")
         share_code = get_event_share_code(self.event.id)
-        
+
         # Soft delete the event
         self.event.is_deleted = True
         self.event.save()
-        
+
         response = self.client.get(
-            reverse("events:share_redirect", kwargs={"code": share_code}),
-            follow=False
+            reverse("events:share_redirect", kwargs={"code": share_code}), follow=False
         )
-        
+
         # Should return 404
         self.assertEqual(response.status_code, 404)

@@ -63,11 +63,8 @@ class ArtineraryAI:
         genai.configure(api_key=settings.GEMINI_API_KEY)
         self.model = None
         model_names = [
-            "gemini-1.5-flash",
-            "gemini-1.5-pro",
-            "gemini-pro",
-            "models/gemini-1.5-flash",
-            "models/gemini-pro",
+            "gemini-2.5-flash",
+            "gemini-2.0-flash",
         ]
 
         for model_name in model_names:
