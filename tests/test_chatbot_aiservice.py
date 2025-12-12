@@ -6,9 +6,38 @@ Comprehensive tests for ArtineraryAI functionality
 from django.test import TestCase
 from django.contrib.auth.models import User
 from decimal import Decimal
+import pytest
+from unittest.mock import patch, MagicMock
 
 from chatbot.ai_service import ArtineraryAI, ContentModerator
 from loc_detail.models import PublicArt
+
+@pytest.fixture(autouse=True)
+def fast_chatbot_mocks():
+    """
+    Autouse fixture to speed up chatbot-related tests by mocking slow/external ops:
+    - mocks requests.get to return a simple empty response
+    - no-ops time.sleep
+    Adjust or narrow the patch targets if some tests depend on real external responses.
+    """
+    # Patch requests.get used by ai_service / other modules
+    requests_get_patcher = patch("requests.get")
+    mock_get = requests_get_patcher.start()
+    mock_resp = MagicMock()
+    mock_resp.status_code = 200
+    mock_resp.text = "{}"
+    mock_resp.json.return_value = {}
+    mock_get.return_value = mock_resp
+
+    # No-op time.sleep to eliminate artificial delays
+    sleep_patcher = patch("time.sleep", lambda *a, **k: None)
+    sleep_patcher.start()
+
+    yield
+
+    # stop patchers
+    requests_get_patcher.stop()
+    sleep_patcher.stop()
 
 
 class ContentModeratorTests(TestCase):
