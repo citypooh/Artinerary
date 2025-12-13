@@ -400,11 +400,6 @@ function copyShareLink() {
     const url = "{{ share_url|escapejs }}";
     const title = "{{ event.title|escapejs }}";
     const text = "Check out this event on Artinerary!";
-    const shareData = {
-        title,
-        text,
-        url,
-    };
     
     if (navigator.share) {
         // Native share on mobile/modern browsers
