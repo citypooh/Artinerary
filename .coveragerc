@@ -12,7 +12,7 @@ omit =
     manage.py
     core/wsgi.py
     core/asgi.py
-    */management/commands/import_art_data.py
+    */management/commands/*
 
 [report]
 exclude_lines =

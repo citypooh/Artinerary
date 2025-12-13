@@ -9,6 +9,8 @@ urlpatterns = [
     path("", views.index, name="index"),
     path("public/", views.public_events, name="public"),
     path("invitations/", views.invitations, name="invitations"),
+    # SHARE LINKS
+    path("e/<str:code>/", views.event_share_redirect, name="share_redirect"),
     path(
         "favorites/",
         RedirectView.as_view(url="/favorites/?tab=events", permanent=False),

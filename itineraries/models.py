@@ -23,6 +23,11 @@ class Itinerary(models.Model):
     class Meta:
         ordering = ["-created_at"]
         verbose_name_plural = "Itineraries"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "title"], name="unique_user_itinerary_title"
+            )
+        ]
 
     def __str__(self):
         return f"{self.title} by {self.user.username}"

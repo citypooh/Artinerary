@@ -20,6 +20,14 @@
             
             <!-- Action Buttons -->
             <div class="header-actions">
+                <!-- Share Button (for all users) -->
+                <button type="button" class="btn btn-outline-primary" onclick="copyShareLink()" title="Share event">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5z"/>
+                    </svg>
+                    Share
+                </button>
+                
                 <!-- Favorite Button (for all users) -->
                 {% if is_favorited %}
                 <form method="post" action="{% url 'events:unfavorite' event.slug %}" style="display:inline;">
@@ -356,5 +364,36 @@ document.addEventListener('keydown', function(e) {
         });
     }
 });
+
+// Share link functionality
+function copyShareLink() {
+    const url = "{{ share_url|escapejs }}";
+    const title = "{{ event.title|escapejs }}";
+    const text = "Check out this event on Artinerary!";
+    
+    if (navigator.share) {
+        // Native share on mobile/modern browsers
+        navigator.share({
+            title: title,
+            text: text,
+            url: url
+        }).catch(function(err) {
+            // User cancelled or error occurred - silently fail
+            console.log('Share cancelled or failed:', err);
+        });
+    } else if (navigator.clipboard) {
+        // Copy to clipboard on desktop
+        navigator.clipboard.writeText(url).then(function() {
+            alert('Link copied to clipboard!');
+        }).catch(function(err) {
+            console.error('Failed to copy:', err);
+            // Fallback to prompt
+            prompt('Copy this event link:', url);
+        });
+    } else {
+        // Fallback for older browsers
+        prompt('Copy this event link:', url);
+    }
+}
 </script>
 {% endblock %}

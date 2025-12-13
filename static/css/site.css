@@ -380,15 +380,6 @@ main {
     min-width: 200px;
 }
 
-.form-group-accounts {
-    margin-bottom: 1.5rem;
-}
-
-div.form-group.form-group-accounts input {
-    background-color: var(--white);
-    border: 1px solid var(--page-background);
-}
-
 .form-group label {
     display: block;
     margin-bottom: 0.5rem;
@@ -422,6 +413,16 @@ div.form-group.form-group-accounts input {
     margin-top: 0.25rem;
     color: #666;
     font-size: 0.875rem;
+}
+
+.form-group-accounts {
+    margin-bottom: 1.5rem;
+}
+
+div.form-group.form-group-accounts input {
+    background-color: var(--white);
+    border: 1px solid var(--page-background);
+    color: var(--page-background);
 }
 
 .form-control {
@@ -526,6 +527,11 @@ select.form-control:focus {
     gap: 1rem;
     flex-wrap: wrap;
     align-items: center;
+}
+
+.search-filter-form {
+    display: flex;
+    gap: 1rem;
 }
 
 .filter-group {

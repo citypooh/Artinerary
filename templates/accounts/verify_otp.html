@@ -4,9 +4,9 @@
 
 {% block content %}
 <div class="form-container">
-    <h1>Verify Your Email</h1>
-    <p>We've sent a 6-digit verification code to <strong>{{ email }}</strong></p>
-    <p class="text-warning">Code expires in 3 minutes</p>
+    <h1 style="color: var(--page-background); margin-bottom: 1rem;">Verify Your Email</h1>
+    <p style="color: var(--page-background); margin-bottom: 0.5rem;">We've sent a 6-digit verification code to <strong>{{ email }}</strong></p>
+    <p style="color: #dc3545; font-size: 0.9em; margin-bottom: 1.5rem;">Code expires in 3 minutes</p>
     
     <form method="post">
         {% csrf_token %}
@@ -16,7 +16,7 @@
         {% endif %}
 
         <div class="form-group">
-            <label for="{{ form.otp.id_for_label }}">Verification Code</label>
+            <label for="{{ form.otp.id_for_label }}" style="color: var(--page-background);">Verification Code</label>
             {{ form.otp }}
             {% if form.otp.errors %}
                 <div class="error">{{ form.otp.errors }}</div>
@@ -27,18 +27,12 @@
     </form>
     
     <div class="form-footer">
-        <p>Didn't receive the code? <a href="{% url 'accounts:resend_otp' %}">Resend Code</a></p>
-        <p><a href="{% url 'accounts:signup' %}">Back to Sign Up</a></p>
+        <p style="color: var(--page-background);">Didn't receive the code? <a href="{% url 'accounts:resend_otp' %}" style="color: #667eea;">Resend Code</a></p>
+        <p><a href="{% url 'accounts:signup' %}" style="color: #667eea;">Back to Sign Up</a></p>
     </div>
 </div>
 
 <style>
-.text-warning {
-    color: #ff6b6b;
-    font-size: 0.9em;
-    margin-bottom: 1.5rem;
-}
-
 .form-footer {
     margin-top: 1.5rem;
     text-align: center;
