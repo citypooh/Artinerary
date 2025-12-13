@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
+from django.db.models import Q, Avg
 from events.models import EventMembership
 from itineraries.models import Itinerary
+from loc_detail.models import PublicArt
 from messages.models import Conversation
 
 
@@ -33,10 +34,16 @@ def dashboard(request):
         "-updated_at"
     )[:3]
 
+    # Get featured artworks (top 3 rated)
+    featured_artworks = PublicArt.objects.annotate(
+        avg_rating=Avg("comments__rating", filter=Q(comments__parent__isnull=True))
+    ).order_by("-avg_rating")[:3]
+
     context = {
         "upcoming_events": upcoming_events,
         "my_itineraries": my_itineraries,
         "recent_chats": recent_chats,
+        "featured_artworks": featured_artworks,
     }
     return render(request, "dashboard.html", context)
 

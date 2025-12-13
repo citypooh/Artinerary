@@ -12,7 +12,7 @@ class Itinerary(models.Model):
     """Model representing a user's itinerary"""
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="itineraries")
-    title = models.CharField(max_length=200, unique=True)
+    title = models.CharField(max_length=200)
     description = models.TextField(blank=True, null=True)
     date = models.DateField(
         blank=True, null=True, help_text="Planned date for this itinerary"
@@ -23,6 +23,11 @@ class Itinerary(models.Model):
     class Meta:
         ordering = ["-created_at"]
         verbose_name_plural = "Itineraries"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "title"], name="unique_user_itinerary_title"
+            )
+        ]
 
     def __str__(self):
         return f"{self.title} by {self.user.username}"

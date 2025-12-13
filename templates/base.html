@@ -138,13 +138,20 @@
                 class="logo">Artinerary</a>
             <div class="nav-links">
                 {% block nav_links %}
-                <a href="{% url 'loc_detail:index' %}">Artworks</a>
                 <a href="{% url 'artinerary:index' %}">Map</a>
+                <a href="{% url 'loc_detail:index' %}">Artworks</a>
+
                 {% if user.is_authenticated %}
-                <a href="{% url 'dashboard' %}">Dashboard</a>
-                <a href="{% url 'favorites:index' %}">My Favorites</a>
-                <a href="{% url 'itineraries:list' %}">My Itineraries</a>
+                <a href="{% url 'itineraries:list' %}">Itineraries</a>
                 <a href="{% url 'events:public' %}">Events</a>
+                <a href="{% url 'favorites:index' %}">Favorites</a>
+                <a href="{% url 'user_messages:inbox' %}" class="messages-link" title="Messages">
+                    Chat
+                    <!-- <i class="fa-regular fa-paper-plane dm-icon"></i> -->
+                    <span class="message-badge" id="unread-badge" style="display: none;">0</span>
+                </a>
+
+
 
                 <!-- User Menu -->
                 <div class="user-menu">
@@ -204,7 +211,7 @@
     <main>
         {% block content %}{% endblock %}
     </main>
-    
+
     <script>
         function toggleDropdown() {
             document.getElementById("userDropdown").classList.toggle("show");
