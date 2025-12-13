@@ -9,7 +9,11 @@
     <div class="event-header">
         <div class="header-content">
             <div class="header-text">
-                <h1>{{ event.title }}</h1>
+                <h1>{{ event.title }}
+                <button type="button" class="btn btn-icon btn-outline-primary" onclick="copyLink()" title="Copy link">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M440-280H280q-83 0-141.5-58.5T80-480q0-83 58.5-141.5T280-680h160v80H280q-50 0-85 35t-35 85q0 50 35 85t85 35h160v80ZM320-440v-80h320v80H320Zm200 160v-80h160q50 0 85-35t35-85q0-50-35-85t-85-35H520v-80h160q83 0 141.5 58.5T880-480q0 83-58.5 141.5T680-280H520Z"/></svg>
+                </button>
+                </h1>
                 <p class="event-host">
                     Hosted by <strong>{{ event.host.username }}</strong>
                     {% if user_role == 'HOST' %}
@@ -171,6 +175,16 @@
 }
 .btn svg {
     flex-shrink: 0;
+}
+.btn-icon {
+    fill: var(--highlight);
+    padding: 0.5rem;
+    margin-left: 0.5rem;
+    min-width: 50px !important;
+    display: inline;
+}
+.btn-icon:hover {
+    fill: var(--white);
 }
 .btn-edit {
     background: rgba(102, 126, 234, 0.15);
@@ -364,6 +378,22 @@ document.addEventListener('keydown', function(e) {
         });
     }
 });
+
+function copyLink() {
+    const url = "{{ request.build_absolute_uri }}";
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(function() {
+            alert('Event link copied to clipboard!');
+        }).catch(function(err) {
+            console.error('Failed to copy:', err);
+            // Fallback to prompt
+            prompt('Copy this event link:', url);
+        });
+    } else {
+        // Fallback for older browsers
+        prompt('Copy this event link:', url);
+    }
+}
 
 // Share link functionality
 function copyShareLink() {
