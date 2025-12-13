@@ -10,7 +10,8 @@ Main:
 Develop:
 [![build status](https://app.travis-ci.com/gcivil-nyu-org/team1-wed-fall25.svg?token=2YAzE5PLqmscpsxcrmuV&branch=develop)](https://app.travis-ci.com/gcivil-nyu-org/team1-wed-fall25.svg?token=2YAzE5PLqmscpsxcrmuV&branch=develop)
 
-[![Coverage Status](https://coveralls.io/repos/github/gcivil-nyu-org/team1-wed-fall25/badge.svg?branch=develop)](https://coveralls.io/github/gcivil-nyu-org/team1-wed-fall25?branch=develop)
+{<img src="https://coveralls.io/repos/github/spread-the-code/git-commiter-nodejs/badge.svg?branch=master&kill_cache=1" />}[https://coveralls.io/github/gcivil-nyu-org/team1-wed-fall25?branch=develop]
+
 
 ## Testing
 
