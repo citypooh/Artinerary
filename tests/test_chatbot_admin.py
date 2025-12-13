@@ -3,6 +3,16 @@ Comprehensive test suite for Chatbot app - Part 4
 Tests for admin configuration
 """
 
+# flake8: noqa
+
+from unittest.mock import patch, MagicMock
+
+genai_patcher = patch("chatbot.ai_service.genai")
+mock_genai = genai_patcher.start()
+mock_model = MagicMock()
+mock_model.generate_content.return_value = MagicMock(text="Mocked AI response")
+mock_genai.GenerativeModel.return_value = mock_model
+
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from django.contrib.admin.sites import AdminSite

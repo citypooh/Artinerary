@@ -5,7 +5,7 @@
     </div>
     
     <!-- Messages -->
-    <div class="chat-messages">
+    <div class="event-chat-messages">
         {% if chat_messages %}
             {% for msg in chat_messages %}
             <div class="chat-message {% if msg.author == request.user %}own-message{% endif %}" data-message-id="{{ msg.id }}">
@@ -22,7 +22,7 @@
                     </button>
                     {% endif %}
                 </div>
-                <div class="message-content">{{ msg.message|linebreaks }}</div>
+                <div class="event-message-content">{{ msg.message|linebreaks }}</div>
                 <div class="message-time">{{ msg.created_at|date:"M j, g:i A" }}</div>
             </div>
             {% endfor %}
@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <script>
 // Scroll to bottom on page load (for message sender after form submission)
 window.addEventListener('load', function() {
-    const chatMessages = document.querySelector('.chat-messages');
+    const chatMessages = document.querySelector('.event-chat-messages');
     if (chatMessages) {
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
@@ -207,25 +207,25 @@ document.addEventListener('DOMContentLoaded', function() {
     font-weight: 300;
     letter-spacing: 0.3px;
 }
-.chat-messages {
+.event-chat-messages {
     flex: 1;
     overflow-y: auto;
     margin-bottom: 1.5rem;
     padding: 1rem;
     border: 1px solid #ccc;
 }
-.chat-messages::-webkit-scrollbar {
+.event-chat-messages::-webkit-scrollbar {
     width: 6px;
 }
-.chat-messages::-webkit-scrollbar-track {
+.event-chat-messages::-webkit-scrollbar-track {
     background: rgba(255, 255, 255, 0.05);
     border-radius: 10px;
 }
-.chat-messages::-webkit-scrollbar-thumb {
+.event-chat-messages::-webkit-scrollbar-thumb {
     background: rgba(102, 126, 234, 0.3);
     border-radius: 10px;
 }
-.chat-messages::-webkit-scrollbar-thumb:hover {
+.event-chat-messages::-webkit-scrollbar-thumb:hover {
     background: rgba(102, 126, 234, 0.5);
 }
 .chat-message {
@@ -277,7 +277,7 @@ document.addEventListener('DOMContentLoaded', function() {
     border: 1px solid rgba(250, 112, 154, 0.3);
     letter-spacing: 0.3px;
 }
-.message-content {
+.event-message-content {
     margin: 0.5rem 0;
     font-size: 0.9rem;
     line-height: 1.5;
@@ -478,7 +478,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script>
 (function() {
-    const chatMessages = document.querySelector('.chat-messages');
+    const chatMessages = document.querySelector('.event-chat-messages');
     const chatForm = document.getElementById('chat-form');
     const chatInput = document.getElementById('chat-message-input');
     const eventSlug = '{{ event.slug }}';
@@ -581,7 +581,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                     ${reportButton}
                 </div>
-                <div class="message-content">${escapeHtml(msg.message)}</div>
+                <div class="event-message-content">${escapeHtml(msg.message)}</div>
                 <div class="message-time">${msg.created_at}</div>
             `;
             
