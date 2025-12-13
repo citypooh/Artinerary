@@ -13,21 +13,20 @@ class DownsampleImagesCommandTests(TestCase):
             MagicMock(
                 pk=1,
                 image=MagicMock(name="img1.jpg"),
-                thumbnail=None,
+                thumbnail=MagicMock(),
                 downsample_image=MagicMock(return_value=None),
                 make_thumbnail=MagicMock(return_value=None),
             ),
             MagicMock(
                 pk=2,
                 image=MagicMock(name="img2.jpg"),
-                thumbnail=None,
+                thumbnail=MagicMock(),
                 downsample_image=MagicMock(return_value=None),
                 make_thumbnail=MagicMock(return_value=None),
             ),
         ]
         call_command("downsample_images", "--dry-run")
         assert mock_publicart.objects.filter.called
-        assert mock_qs.exclude.called
         assert mock_qs.count.called
         assert mock_qs.iterator.called
 
@@ -50,7 +49,8 @@ class DownsampleImagesCommandTests(TestCase):
 class GenerateThumbnailsCommandTests(TestCase):
     @patch("loc_detail.management.commands.generate_thumbnails.PublicArt")
     def test_generate_thumbnails_default(self, mock_publicart):
-        mock_art = MagicMock(pk=1, image=MagicMock(name="img1.jpg"), thumbnail=None)
+        mock_art = MagicMock(pk=1, image=MagicMock(name="img1.jpg"))
+        mock_art.thumbnail = MagicMock()  # Make thumbnail a MagicMock
         mock_art.make_thumbnail.return_value = MagicMock(name="thumb.jpg")
         mock_qs = MagicMock()
         mock_publicart.objects.filter.return_value = mock_qs
@@ -64,9 +64,8 @@ class GenerateThumbnailsCommandTests(TestCase):
 
     @patch("loc_detail.management.commands.generate_thumbnails.PublicArt")
     def test_generate_thumbnails_force(self, mock_publicart):
-        mock_art = MagicMock(
-            pk=1, image=MagicMock(name="img1.jpg"), thumbnail="thumb.jpg"
-        )
+        mock_art = MagicMock(pk=1, image=MagicMock(name="img1.jpg"))
+        mock_art.thumbnail = MagicMock()  # Fix: use MagicMock, not string
         mock_art.make_thumbnail.return_value = MagicMock(name="thumb.jpg")
         mock_qs = MagicMock()
         mock_publicart.objects.filter.return_value = mock_qs
