@@ -5,12 +5,13 @@ Artinerary is a Django web application for exploring NYC public art installation
 Main: 
 [![build status](https://app.travis-ci.com/gcivil-nyu-org/team1-wed-fall25.svg?token=2YAzE5PLqmscpsxcrmuV&branch=main)](https://app.travis-ci.com/gcivil-nyu-org/team1-wed-fall25.svg?token=2YAzE5PLqmscpsxcrmuV&branch=main)
 
-[![Coverage Status](https://coveralls.io/repos/github/gcivil-nyu-org/team1-wed-fall25/badge.svg?branch=main)](https://coveralls.io/github/gcivil-nyu-org/team1-wed-fall25?branch=main)
+<a href='https://coveralls.io/github/gcivil-nyu-org/team1-wed-fall25?branch=main'><img src='https://coveralls.io/repos/github/gcivil-nyu-org/team1-wed-fall25/badge.svg?branch=main&kill_cache=1' alt='Coverage Status' /></a>
 
 Develop:
 [![build status](https://app.travis-ci.com/gcivil-nyu-org/team1-wed-fall25.svg?token=2YAzE5PLqmscpsxcrmuV&branch=develop)](https://app.travis-ci.com/gcivil-nyu-org/team1-wed-fall25.svg?token=2YAzE5PLqmscpsxcrmuV&branch=develop)
 
-[![Coverage Status](https://coveralls.io/repos/github/gcivil-nyu-org/team1-wed-fall25/badge.svg?branch=develop)](https://coveralls.io/github/gcivil-nyu-org/team1-wed-fall25?branch=develop)
+<a href='https://coveralls.io/github/gcivil-nyu-org/team1-wed-fall25?branch=develop'><img src='https://coveralls.io/repos/github/gcivil-nyu-org/team1-wed-fall25/badge.svg?branch=develop&kill_cache=1' alt='Coverage Status' /></a>
+
 
 ## Testing
 
