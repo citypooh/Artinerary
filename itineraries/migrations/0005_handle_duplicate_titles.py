@@ -6,7 +6,9 @@ from django.db import migrations
 def handle_duplicate_titles(apps, schema_editor):
     """Rename duplicate itinerary titles for each user by appending a number"""
     Itinerary = apps.get_model("itineraries", "Itinerary")
-    User = apps.get_model("auth", "User")  # Change this line - use apps.get_model instead
+    User = apps.get_model(
+        "auth", "User"
+    )  # Change this line - use apps.get_model instead
 
     for user in User.objects.all():
         # Get all itineraries for this user
