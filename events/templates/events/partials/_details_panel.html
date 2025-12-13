@@ -70,14 +70,17 @@
                 <div class="attendee-info">
                     <a class="attendee-profile-link" href="{% url 'user_profile:profile_view' membership.user.username %}">
                         <div class="review-avatar">{{ membership.user.username|first|upper }}</div>
-                        <div class="review-author">{{ membership.user.username }}</div>
+                        <div class="review-author">
+                            {{ membership.user.username }}
+                            {% if membership.role == 'HOST' %}
+                                <span class="role-badge host">Host</span>
+                            {% endif %}
+                            {% if user_role == 'HOST' %}
+                                <span class="email">{{ membership.user.email }}</span>
+                            {% endif %}
+                        </div>
                     </a>
-                    {% if membership.role == 'HOST' %}
-                    <span class="role-badge host">Host</span>
-                    {% endif %}
-                    {% if user_role == 'HOST' %}
-                    <span class="email">{{ membership.user.email }}</span>
-                    {% endif %}
+
                 </div>
                 {% if membership.user != request.user %}
                 <a href="{% url 'user_messages:conversation' membership.user.id %}?from_event=true" class="btn btn-outline-primary btn-message">
