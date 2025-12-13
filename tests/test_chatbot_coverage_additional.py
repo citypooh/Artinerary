@@ -2,6 +2,15 @@
 Additional tests for Chatbot app - Covering ALL uncovered lines
 Robust tests that handle variable AI responses
 """
+# flake8: noqa
+
+from unittest.mock import patch, MagicMock
+
+genai_patcher = patch("chatbot.ai_service.genai")
+mock_genai = genai_patcher.start()
+mock_model = MagicMock()
+mock_model.generate_content.return_value = MagicMock(text="Mocked AI response")
+mock_genai.GenerativeModel.return_value = mock_model
 
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
