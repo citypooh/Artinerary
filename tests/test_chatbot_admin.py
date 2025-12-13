@@ -2,6 +2,7 @@
 Comprehensive test suite for Chatbot app - Part 4
 Tests for admin configuration
 """
+
 # flake8: noqa
 
 from unittest.mock import patch, MagicMock

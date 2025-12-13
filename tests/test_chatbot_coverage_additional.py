@@ -2,6 +2,7 @@
 Additional tests for Chatbot app - Covering ALL uncovered lines
 Robust tests that handle variable AI responses
 """
+
 # flake8: noqa
 
 from unittest.mock import patch, MagicMock

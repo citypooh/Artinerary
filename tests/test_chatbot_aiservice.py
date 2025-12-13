@@ -2,6 +2,7 @@
 Tests for Chatbot AI Service
 Comprehensive tests for ArtineraryAI functionality
 """
+
 # flake8: noqa
 
 from unittest.mock import patch, MagicMock
