@@ -1398,3 +1398,187 @@ class EventShareRedirectTests(TestCase):
 
         # Should return 404
         self.assertEqual(response.status_code, 404)
+
+
+class Base62UtilsAdditionalTests(TestCase):
+    """Additional tests for Base62 utilities to improve coverage"""
+
+    def test_encode_single_digit(self):
+        """Test encoding of single-digit numbers (edge case)"""
+        from .utils import base62_encode, base62_decode
+
+        # Test first character mapping
+        encoded = base62_encode(1)
+        self.assertEqual(len(encoded), 1)
+        decoded = base62_decode(encoded)
+        self.assertEqual(decoded, 1)
+
+    def test_encode_large_number(self):
+        """Test encoding of large event IDs"""
+        from .utils import base62_encode, base62_decode
+
+        large_id = 999999999
+        encoded = base62_encode(large_id)
+        decoded = base62_decode(encoded)
+        self.assertEqual(decoded, large_id)
+
+    def test_decode_empty_string(self):
+        """Test decoding empty string returns 0"""
+        from .utils import base62_decode
+
+        result = base62_decode("")
+        self.assertEqual(result, 0)
+
+    def test_get_event_share_code_with_event_instance(self):
+        """Test get_event_share_code with Event object"""
+        from .utils import get_event_share_code, base62_decode
+
+        user = User.objects.create_user(
+            username="sharetest", email="share@test.com", password="password123"
+        )
+        location = PublicArt.objects.create(
+            title="Share Test Art",
+            artist_name="Artist",
+            latitude=40.7128,
+            longitude=-74.0060,
+        )
+        event = Event.objects.create(
+            title="Share Test Event",
+            host=user,
+            start_time=timezone.now() + timedelta(hours=2),
+            start_location=location,
+            visibility=EventVisibility.PUBLIC_OPEN,
+        )
+
+        # Test with Event instance
+        code = get_event_share_code(event)
+        decoded_id = base62_decode(code)
+        self.assertEqual(decoded_id, event.id)
+
+    def test_get_event_share_code_with_integer(self):
+        """Test get_event_share_code with integer ID"""
+        from .utils import get_event_share_code, base62_decode
+
+        event_id = 12345
+        code = get_event_share_code(event_id)
+        decoded_id = base62_decode(code)
+        self.assertEqual(decoded_id, event_id)
+
+
+class EventShareRedirectAdditionalTests(TestCase):
+    """Additional tests for share redirect edge cases"""
+
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(
+            username="testuser2", email="test2@example.com", password="password123"
+        )
+        self.location = PublicArt.objects.create(
+            title="Test Art 2",
+            artist_name="Test Artist",
+            latitude=40.7128,
+            longitude=-74.0060,
+        )
+        self.event = Event.objects.create(
+            title="Test Event 2",
+            host=self.user,
+            start_time=timezone.now() + timedelta(hours=2),
+            start_location=self.location,
+            visibility=EventVisibility.PUBLIC_OPEN,
+        )
+
+    def test_share_redirect_nonexistent_event(self):
+        """Test share redirect for valid code but non-existent event ID"""
+        from .utils import base62_encode
+
+        self.client.login(username="testuser2", password="password123")
+
+        # Create a valid base62 code for a non-existent event ID
+        fake_event_id = 999999999
+        fake_code = base62_encode(fake_event_id)
+
+        response = self.client.get(
+            reverse("events:share_redirect", kwargs={"code": fake_code}), follow=False
+        )
+
+        # Should return 404 for non-existent event
+        self.assertEqual(response.status_code, 404)
+
+    def test_share_redirect_with_zero_decoded(self):
+        """Test share redirect when code decodes to zero or negative"""
+        self.client.login(username="testuser2", password="password123")
+
+        # 'a' in base62 decodes to 0 (first char in alphabet)
+        response = self.client.get(
+            reverse("events:share_redirect", kwargs={"code": "a"}), follow=True
+        )
+
+        # Should redirect to public events with error message
+        self.assertEqual(response.status_code, 200)
+
+    def test_share_url_in_event_detail_context(self):
+        """Test that share_url is correctly included in detail context"""
+        from .utils import get_event_share_code
+
+        self.client.login(username="testuser2", password="password123")
+
+        response = self.client.get(
+            reverse("events:detail", kwargs={"slug": self.event.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        # Check that share_url is in the context
+        self.assertIn("share_url", response.context)
+
+        # Verify the share_url contains the correct code
+        share_code = get_event_share_code(self.event.id)
+        self.assertIn(share_code, response.context["share_url"])
+        self.assertIn("/events/e/", response.context["share_url"])
+
+    def test_share_redirect_preserves_next_param_for_anonymous(self):
+        """Test that anonymous users get proper next param for login redirect"""
+        from .utils import get_event_share_code
+
+        share_code = get_event_share_code(self.event.id)
+        share_url = reverse("events:share_redirect", kwargs={"code": share_code})
+
+        response = self.client.get(share_url, follow=False)
+
+        self.assertEqual(response.status_code, 302)
+        # Verify the redirect includes the share URL as next param
+        self.assertIn(f"next={share_url}", response.url)
+
+    def test_share_redirect_case_sensitive_code(self):
+        """Test that base62 codes are case-sensitive"""
+        from .utils import get_event_share_code
+
+        self.client.login(username="testuser2", password="password123")
+
+        # Get correct code
+        correct_code = get_event_share_code(self.event.id)
+
+        # Swap case (if there are letters)
+        wrong_code = correct_code.swapcase()
+
+        if wrong_code != correct_code:  # Only test if swapcase changes it
+            response = self.client.get(
+                reverse("events:share_redirect", kwargs={"code": wrong_code}),
+                follow=False,
+            )
+            # Should either 404 (wrong event) or redirect to public (if decode fails)
+            self.assertIn(response.status_code, [302, 404])
+
+    def test_share_url_is_absolute(self):
+        """Test that share_url is an absolute URL with scheme"""
+        self.client.login(username="testuser2", password="password123")
+
+        response = self.client.get(
+            reverse("events:detail", kwargs={"slug": self.event.slug})
+        )
+
+        share_url = response.context["share_url"]
+        # Should start with http:// or https://
+        self.assertTrue(
+            share_url.startswith("http://") or share_url.startswith("https://"),
+            f"share_url should be absolute, got: {share_url}",
+        )
