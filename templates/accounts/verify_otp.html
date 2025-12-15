@@ -15,7 +15,7 @@
             <div class="error">{{ form.non_field_errors }}</div>
         {% endif %}
 
-        <div class="form-group">
+        <div class="form-group form-group-accounts">
             <label for="{{ form.otp.id_for_label }}" style="color: var(--page-background);">Verification Code</label>
             {{ form.otp }}
             {% if form.otp.errors %}
